@@ -1,4 +1,5 @@
 import { Model, DataTypes } from "../deps.ts";
+import User from "./User.ts";
 class Room extends Model {
   static table = "room";
   static timestamps = true;
@@ -6,13 +7,16 @@ class Room extends Model {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true,
     },
     name: DataTypes.string(50),
-    members: DataTypes.JSON,
   };
   static defaults = {
     name: "default room name",
   };
+  static users() {
+    return this.hasMany(User);
+  }
 }
 
 export default Room;

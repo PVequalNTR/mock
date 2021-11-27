@@ -5,4 +5,6 @@ export {
   SQLite3Connector,
   Model,
   DataTypes,
+  Relationships,
 } from "https://deno.land/x/denodb@v1.0.39/mod.ts";
+export { config } from "https://deno.land/x/dotenv@v3.1.0/mod.ts";

@@ -1,3 +1,11 @@
 {
-  "deno.enable": true
+  "deno.enable": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "test",
+      "database": "C:\\Files\\project\\active project\\onsd\\db\\test.sqlite"
+    }
+  ]
 }

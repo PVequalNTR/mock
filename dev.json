@@ -13,6 +13,17 @@
     }
   ],
   "paths": {
+    "/user/login": {
+      "post": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/user/name/{name}": {
       "get": {
         "summary": "Details about a user",

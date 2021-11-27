@@ -1,2 +1,2 @@
 cd.. 
-./deno_.exe test
+deno test

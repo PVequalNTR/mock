@@ -1,29 +1,44 @@
-const maxTokenCap = 1000;
-if (!tokenStorage!) var tokenStorage = new Map();
-function generateToken(user: any, time = 3600000): string {
-  if (tokenStorage.size >= maxTokenCap)
-    throw new Error("Token storage is full");
-  const token =
+import Token from "../models/Token.ts";
+import User from "../models/User.ts";
+
+async function generateToken(userId_: number, time = 3600000) {
+  // use "crypto.getRandomValues", which is more secured.
+  const token_g =
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15);
-  // use "crypto.getRandomValues", which is more secured.
-  tokenStorage.set(token, user);
-  // "setTimeout" isn't a good choice, because it will be called very often.
-  setTimeout(() => {
-    deleteToken(token);
-  }, time);
-  return token;
+  // await Token.create({ value: token_g, ttl: time });
+  await Token.create({ value: token_g, userId: userId_, ttl: time });
+  return token_g;
 }
 
-function verifyToken(token: string) {
-  if (!tokenStorage.has(token)) return -1;
-  return tokenStorage.get(token);
+async function verifyToken(token: string) {
+  let token_db = await Token.where("value", token).first();
+  if (!token_db) return false;
+  if (
+    new Date("" + token_db.updatedAt).getTime() >
+    Date.now() + +("" + token_db.ttl)
+  )
+    return false;
+  return await Token.where("id", token_db.id as number).user();
 }
 
-function deleteToken(token: string) {
-  if (!tokenStorage.has(token)) return false;
-  tokenStorage.delete(token);
+async function getUser(token: string) {
+  let token_db = await Token.where("value", token).first();
+  if (!token_db) return false;
+  if (
+    new Date("" + token_db.updatedAt).getTime() >
+    Date.now() + +("" + token_db.ttl)
+  )
+    return false;
+  return await Token.where("id", token_db.id as number).user();
+}
+
+async function deleteToken(token: string) {
+  if (!(await verifyToken(token))) {
+    return false;
+  }
+  await Token.where("value", token).delete();
   return true;
 }
 
