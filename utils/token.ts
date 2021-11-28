@@ -1,3 +1,4 @@
+import { Model } from "../deps.ts";
 import Token from "../models/Token.ts";
 import User from "../models/User.ts";
 
@@ -31,8 +32,25 @@ async function deleteToken(token: string) {
   return true;
 }
 
+async function checkHeader(ctx: any): Promise<Model | false> {
+  const token_local = ctx.request.headers.get("token");
+  if (!token_local) {
+    ctx.response.status = 401;
+    ctx.response.body = "Unauthorized";
+    return false;
+  } else {
+    let user = await verifyToken(token_local);
+    if (!user) {
+      ctx.response.status = 401;
+      ctx.response.body = "Unauthorized";
+      return false;
+    } else return user;
+  }
+}
+
 export default {
   generate: generateToken,
   verify: verifyToken,
   delete: deleteToken,
+  checkHeader,
 };

@@ -20,7 +20,7 @@
   - database model
   - pivot model
 - routes
-  - api routes
+  - api routes,
     frontEnd are expected to be another project
 - script
   - script for server

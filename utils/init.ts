@@ -21,7 +21,7 @@ setTimeout(async () => {
   await Token.create({
     ttl: 3600000,
     userId: +admin.id!,
-    value: "uqsylkrea5y6vx0xig6jhojgy3lagub9",
+    value: "MbwqeaEzG4N3XqdSTC40NgGtAR64asufTPhennmeOAtKPvrdydul3k7jWKi6K1Ku",
   });
 }, 1000);
 

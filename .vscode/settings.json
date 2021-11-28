@@ -6,6 +6,12 @@
       "driver": "SQLite",
       "name": "test",
       "database": "C:\\Files\\project\\active project\\onsd\\db\\test.sqlite"
+    },
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "nsd",
+      "database": "${workspaceFolder:nsd}/db/test.sqlite"
     }
   ],
   "deno.suggest.imports.hosts": {

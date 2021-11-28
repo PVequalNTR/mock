@@ -17,11 +17,11 @@ class User extends Model {
   static defaults = {
     privilege: 0,
   };
-  static rooms() {
-    return this.hasMany(Room);
+  static rooms(): Model {
+    return this.hasMany(Room) as any;
   }
-  static tokens() {
-    return this.hasMany(Token);
+  static tokens(): Model[] {
+    return this.hasMany(Token) as any;
   }
 }
 

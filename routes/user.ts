@@ -1,4 +1,4 @@
-import { Router } from "../deps.ts";
+import { Model, Router } from "../deps.ts";
 
 import User from "../models/User.ts";
 import sha512 from "../utils/sha512.ts";
@@ -6,20 +6,35 @@ import token from "../utils/token.ts";
 
 const router = new Router();
 
+// shorten code
+async function errorResponse(
+  ctx: any,
+  text: string,
+  status: number
+): Promise<boolean> {
+  ctx.response.status = status;
+  ctx.response.body = text;
+  return true;
+}
+
 router.get("/name/:name", async (ctx) => {
+  let user = await token.checkHeader(ctx);
+  if (!user) {
+    await errorResponse(ctx, "Unauthorized", 401);
+    return;
+  }
   const dbResultArr = User.where("name", "" + ctx.params.name);
   const target = await dbResultArr.first();
   if (target) {
     delete target.hashedPassword;
     ctx.response.body = target;
   } else {
-    ctx.response.status = 404;
-    ctx.response.body = "Not Found";
+    errorResponse(ctx, "Not Found", 404);
   }
 });
 
 /**
- * @api {post} s/login Get all users
+ * @api {post} login Get all users
  * @field {string} name - User name
  * @field {string} password - User password
  * @response {string} user - token for 1 hour with privilege higher than -1
@@ -27,16 +42,14 @@ router.get("/name/:name", async (ctx) => {
 router.post("/login", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
   if (!body.name || !body.password) {
-    ctx.response.status = 404;
-    ctx.response.body = "Required parameters not provided";
+    errorResponse(ctx, "Required parameters not provided", 404);
     return;
   }
   const targets = await User.where("name", "" + body.name)
     .where("hashedPassword", await sha512(body.password))
     .first();
   if (!targets) {
-    ctx.response.status = 401;
-    ctx.response.body = "Invalid username or password";
+    errorResponse(ctx, "Invalid username or password", 401);
   } else {
     const ttl = 3600 * 1000;
     const token_ = await token.generate(+targets.id!, ttl);
@@ -56,32 +69,30 @@ router.post("/login", async (ctx) => {
  */
 router.post("/register", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
-  if (!body.name || !body.password) {
-    ctx.response.status = 400;
-    ctx.response.body = "Required parameters not provided";
+  body.privilege = +body.privilege || 0;
+  let user;
+  if (body.privilege > 0) {
+    user = await token.checkHeader(ctx);
+    // console.log(user);
+    if (user == false) return;
+    if (user.privilege! < body.privilege) {
+      await errorResponse(ctx, "Insufficient privilege", 403);
+      return;
+    }
   }
-
-  if (body.token && body.privilege) {
-    const creator = await token.verify(body.token);
-    if (!creator) {
-      ctx.response.status = 401;
-      ctx.response.body = "Invalid token";
-      return;
-    }
-    if (creator.privilege! < body.privilege) {
-      ctx.response.status = 401;
-      ctx.response.body = "Higher privilege required";
-      return;
-    }
-  } else body.privilege = 0;
-  User.create({
-    name: body.name,
-    hashedPassword: await sha512(body.password),
-    privilege: body.privilege,
-  });
-  ctx.response.status = 201;
-  ctx.response.body =
-    "registered user with " + body.privilege + " level privilege";
+  if (!body.name || !body.password)
+    await errorResponse(ctx, "Required parameters not provided", 400);
+  else if (await User.where("name", "" + body.name).first())
+    await errorResponse(ctx, "User already exists", 400);
+  else {
+    await User.create({
+      name: body.name,
+      hashedPassword: await sha512(body.password),
+      privilege: body.privilege,
+    });
+    ctx.response.status = 201;
+    ctx.response.body = "success";
+  }
 });
 
 /**
@@ -89,26 +100,25 @@ router.post("/register", async (ctx) => {
  * @field {string} name - User name
  * @field {string} password - User password
  */
-router.delete("/delete", async (ctx) => {
+router.delete("/", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
-  // check if required parameters were provided
-  if (!body.name || !body.password) {
-    ctx.response.status = 401;
-    ctx.response.body = "Required parameters not provided";
-    return;
+  if (!body.name || !body.password)
+    await errorResponse(ctx, "Required parameters not provided", 400);
+  else {
+    const databaseUser = await User.where("name", body.name)
+      .where("hashedPassword", await sha512(body.password))
+      .first();
+    if (!databaseUser) await errorResponse(ctx, "Unauthorized", 401);
+    else {
+      // delete tokens
+      let tokens = await User.where("id", "" + databaseUser.id).tokens();
+      Promise.all(tokens.map((token) => token.delete()));
+      // delete user
+      await databaseUser.delete();
+      ctx.response.status = 200;
+      ctx.response.body = "success";
+    }
   }
-  // find users by token, name and password
-  const databaseUser = await User.where("name", body.name)
-    .where("hashedPassword", await sha512(body.password))
-    .first();
-  // verify
-  if (!databaseUser) {
-    ctx.response.status = 401;
-    ctx.response.body = "Invalid username or password";
-    return;
-  }
-  databaseUser.delete();
-  ctx.response.body = "success";
 });
 
 export default router;
