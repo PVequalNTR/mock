@@ -10,7 +10,7 @@ class Token extends Model {
       autoIncrement: true,
     },
     ttl: DataTypes.INTEGER,
-    value: DataTypes.string(32),
+    value: DataTypes.string(64),
   };
   static defaults = { ttl: 0, value: "" };
   static user() {

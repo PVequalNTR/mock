@@ -1,4 +1,4 @@
-// import { Middleware } from "../deps.ts";
+import { Middleware } from "../deps.ts";
 import { green, bgRed, black, bgBrightWhite } from "../deps.ts";
 
 function format(

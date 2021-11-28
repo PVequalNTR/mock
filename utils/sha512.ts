@@ -5,7 +5,6 @@ async function sha512(value: string) {
   );
   let result = "";
   new Uint16Array(hashed).forEach((x) => {
-    // result += String.fromCharCode(x);
     result += parseChar(x);
   });
   return result;
