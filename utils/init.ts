@@ -6,7 +6,6 @@ import Token from "../models/Token.ts";
 
 const router = new Router();
 
-console.log("initing development mode");
 // initialize test data at once
 // use setTimeout or you might probably get a "The current query does not have any where clause for this model primary key." error
 // bc it's not initialized yet

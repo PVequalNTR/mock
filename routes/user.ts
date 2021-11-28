@@ -14,6 +14,7 @@ router.get("/name/:name", async (ctx) => {
     ctx.response.body = target;
   } else {
     ctx.response.status = 404;
+    ctx.response.body = "Not Found";
   }
 });
 
@@ -26,7 +27,7 @@ router.get("/name/:name", async (ctx) => {
 router.post("/login", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
   if (!body.name || !body.password) {
-    ctx.response.status = 401;
+    ctx.response.status = 404;
     ctx.response.body = "Required parameters not provided";
     return;
   }
@@ -34,7 +35,7 @@ router.post("/login", async (ctx) => {
     .where("hashedPassword", await sha512(body.password))
     .first();
   if (!targets) {
-    ctx.response.status = 404;
+    ctx.response.status = 401;
     ctx.response.body = "Invalid username or password";
   } else {
     const ttl = 3600 * 1000;
@@ -78,6 +79,7 @@ router.post("/register", async (ctx) => {
     hashedPassword: await sha512(body.password),
     privilege: body.privilege,
   });
+  ctx.response.status = 201;
   ctx.response.body =
     "registered user with " + body.privilege + " level privilege";
 });
@@ -86,56 +88,27 @@ router.post("/register", async (ctx) => {
  * @api {delete} /token/:token Get user by token
  * @field {string} name - User name
  * @field {string} password - User password
- * @field {string} token - User's token
  */
 router.delete("/delete", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
   // check if required parameters were provided
-  if (!body.name || !body.password || !body.token) {
+  if (!body.name || !body.password) {
     ctx.response.status = 401;
     ctx.response.body = "Required parameters not provided";
-
     return;
   }
   // find users by token, name and password
   const databaseUser = await User.where("name", body.name)
     .where("hashedPassword", await sha512(body.password))
     .first();
-  const tokenUser = await token.verify(body.token);
-  if (!databaseUser || !tokenUser) {
-    ctx.response.status = 401;
-    ctx.response.body = "Invalid token or password";
-
-    return;
-  }
   // verify
-  const verifyColums = ["name", "hashedPassword", "privilege"];
-  let examine = true;
-  for (const key in databaseUser) {
-    if (
-      verifyColums.includes(key) &&
-      Object.prototype.hasOwnProperty.call(databaseUser, key)
-    ) {
-      if (tokenUser[key] != databaseUser[key]) {
-        examine = false;
-        break;
-      }
-    }
-  }
-  if (!examine) {
+  if (!databaseUser) {
     ctx.response.status = 401;
-    ctx.response.body = {
-      message: "Not same identity",
-    };
-    return;
-  } else {
-    databaseUser.delete();
-    await token.delete(body.token);
-    ctx.response.body = {
-      message: "success",
-    };
+    ctx.response.body = "Invalid username or password";
     return;
   }
+  databaseUser.delete();
+  ctx.response.body = "success";
 });
 
 export default router;

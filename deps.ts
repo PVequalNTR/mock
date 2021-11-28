@@ -1,5 +1,13 @@
-export { Application, Router } from "https://deno.land/x/oak@v10.0.0/mod.ts";
-export type { RouterContext } from "https://deno.land/x/oak@v10.0.0/mod.ts";
+export {
+  Application,
+  Router,
+  Context,
+} from "https://deno.land/x/oak@v10.0.0/mod.ts";
+export type {
+  Middleware,
+  RouterMiddleware,
+  RouterContext,
+} from "https://deno.land/x/oak@v10.0.0/mod.ts";
 export {
   Database,
   SQLite3Connector,
@@ -8,3 +16,9 @@ export {
   Relationships,
 } from "https://deno.land/x/denodb@v1.0.39/mod.ts";
 export { config } from "https://deno.land/x/dotenv@v3.1.0/mod.ts";
+export {
+  green,
+  bgRed,
+  black,
+  bgBrightWhite,
+} from "https://deno.land/std@0.114.0/fmt/colors.ts";

@@ -1,7 +1,4 @@
 import { Database, SQLite3Connector, Relationships } from "../deps.ts";
-import { config } from "../deps.ts";
-
-config({ export: true });
 
 import Room from "../models/Room.ts";
 import User from "../models/User.ts";

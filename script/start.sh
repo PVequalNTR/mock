@@ -1,2 +1,2 @@
 cd ..
-deno run --allow-read --allow-write --allow-env --allow-net main.ts
+deno run --allow-read --allow-write=db --allow-net --allow-env main.ts
