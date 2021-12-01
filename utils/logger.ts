@@ -25,7 +25,7 @@ export default async function logger(ctx: any, next: () => any): Promise<any> {
   text +=
     format(ctx.request.method, 6, "mid") +
     " " +
-    bgBrightWhite(black(format(new URL(ctx.request.url).pathname, 25, "left")));
+    bgBrightWhite(black(format(new URL(ctx.request.url).pathname, 40, "left")));
   await next();
   if (ctx.response.status.toString()[0] == "2")
     text += " " + green(`${ctx.response.status}`);

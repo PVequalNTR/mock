@@ -22,3 +22,4 @@ export {
   black,
   bgBrightWhite,
 } from "https://deno.land/std@0.114.0/fmt/colors.ts";
+export { LRU } from "https://deno.land/x/lru@1.0.2/mod.ts";

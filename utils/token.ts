@@ -1,8 +1,42 @@
+import { LRU } from "https://deno.land/x/lru@1.0.2/mod.ts";
 import { Model } from "../deps.ts";
 import Token from "../models/Token.ts";
 import User from "../models/User.ts";
+import { config } from "../deps.ts";
 
-async function generateToken(userId_: number, time = 3600000) {
+// todo: LRU
+declare global {
+  var tokenS: { tokenCache: LRU<string>; timer: number };
+}
+
+const default_TOKEN_TTL = +(config().TOKEN_TTL || 7200000);
+const token_recycle_time = 60 * 1000;
+
+function getCTime() {
+  return Date.now() + new Date().getTimezoneOffset() * 60 * 1000;
+}
+
+var tokenS;
+
+if (!tokenS)
+  tokenS = {
+    tokenCache: new LRU(50),
+    timer: setInterval(recycleToken, token_recycle_time),
+  };
+
+async function recycleToken() {
+  return await Promise.all(
+    (
+      await Token.where(
+        "createdAt",
+        ">",
+        "" + (getCTime() + default_TOKEN_TTL)
+      ).all()
+    ).map((x) => x.delete())
+  );
+}
+
+async function generateToken(userId_: number, time = default_TOKEN_TTL) {
   // use "crypto.getRandomValues", which is more secured.
   const dict = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678";
   var randomSeed = new Uint8Array(64);
@@ -18,7 +52,7 @@ async function verifyToken(token: string) {
   if (!token_db) return false;
   if (
     new Date("" + token_db.updatedAt).getTime() >
-    Date.now() + +("" + token_db.ttl)
+    +("" + token_db.ttl) + getCTime()
   )
     return false;
   return await Token.where("id", token_db.id as number).user();

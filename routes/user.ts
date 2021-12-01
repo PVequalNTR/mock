@@ -1,7 +1,7 @@
 import { Model, Router } from "../deps.ts";
 
 import User from "../models/User.ts";
-import sha512 from "../utils/sha512.ts";
+import hash from "../utils/hash.ts";
 import token from "../utils/token.ts";
 
 const router = new Router();
@@ -17,6 +17,9 @@ async function errorResponse(
   return true;
 }
 
+/**
+ * token in header is required
+ */
 router.get("/name/:name", async (ctx) => {
   let user = await token.checkHeader(ctx);
   if (!user) {
@@ -46,7 +49,7 @@ router.post("/login", async (ctx) => {
     return;
   }
   const targets = await User.where("name", "" + body.name)
-    .where("hashedPassword", await sha512(body.password))
+    .where("hashedPassword", await hash(body.password))
     .first();
   if (!targets) {
     errorResponse(ctx, "Invalid username or password", 401);
@@ -65,7 +68,7 @@ router.post("/login", async (ctx) => {
  * @field {string} name - User name
  * @field {string} password - User password
  * @field {number} privilege - User privilege (optional)
- * @field {string} token - Creator's token (optional)
+ * token in header is required
  */
 router.post("/register", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
@@ -82,12 +85,19 @@ router.post("/register", async (ctx) => {
   }
   if (!body.name || !body.password)
     await errorResponse(ctx, "Required parameters not provided", 400);
+  else if (body.name.length > 64 || body.password.length > 128)
+    errorResponse(ctx, "Required parameters too long", 400);
   else if (await User.where("name", "" + body.name).first())
     await errorResponse(ctx, "User already exists", 400);
+  else if (
+    !/^[a-zA-Z \.]+$/.test(body.name) ||
+    !/^[a-zA-Z \.]+$/.test(body.password)
+  )
+    errorResponse(ctx, "Forbidden character", 400);
   else {
     await User.create({
       name: body.name,
-      hashedPassword: await sha512(body.password),
+      hashedPassword: await hash(body.password),
       privilege: body.privilege,
     });
     ctx.response.status = 201;
@@ -106,7 +116,7 @@ router.delete("/", async (ctx) => {
     await errorResponse(ctx, "Required parameters not provided", 400);
   else {
     const databaseUser = await User.where("name", body.name)
-      .where("hashedPassword", await sha512(body.password))
+      .where("hashedPassword", await hash(body.password))
       .first();
     if (!databaseUser) await errorResponse(ctx, "Unauthorized", 401);
     else {

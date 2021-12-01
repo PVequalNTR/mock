@@ -2,7 +2,7 @@ import { Router } from "../deps.ts";
 
 import Room from "../models/Room.ts";
 import User from "../models/User.ts";
-import sha512 from "../utils/sha512.ts";
+import hash from "../utils/hash.ts";
 import token from "../utils/token.ts";
 import RoomUser from "../models/RoomUser.ts";
 

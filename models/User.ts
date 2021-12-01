@@ -10,7 +10,7 @@ class User extends Model {
       primaryKey: true,
       autoIncrement: true,
     },
-    name: DataTypes.string(50),
+    name: DataTypes.string(64),
     hashedPassword: DataTypes.string(64),
     privilege: DataTypes.INTEGER,
   };
