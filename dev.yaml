@@ -1,0 +1,193 @@
+swagger: '2.0'
+info:
+  title: dev
+  version: '1.0'
+  description: 'This is a sample server deno server. Based on oak, sqlite, deno.js'
+host: 'localhost:3000'
+schemes:
+  - http
+produces:
+  - application/json
+consumes:
+  - application/json
+paths:
+  '/user/name/{UserName}':
+    parameters:
+      - type: string
+        name: UserName
+        in: path
+        description: targeted user's name
+        required: true
+    get:
+      summary: Get User Info by User Name
+      tags: []
+      responses:
+        '200':
+          description: User Found
+          schema:
+            $ref: '#/definitions/User'
+          examples:
+            Get User Alice Smith:
+              id: 142
+              firstName: Alice
+              lastName: Smith
+              email: alice.smith@gmail.com
+              dateOfBirth: '1997-10-31'
+              emailVerified: true
+              signUpDate: '2019-08-24'
+        '401':
+          description: Unauthorized
+          schema:
+            description: ''
+            x-examples:
+              example-1: Unauthorized
+            type: string
+          examples: {}
+        '404':
+          description: User Not Found
+          schema:
+            type: string
+          examples: {}
+      operationId: get-users-userName
+      description: Retrieve the information of the user with the matching user name.
+      parameters: []
+  /user/login:
+    post:
+      summary: Create New User
+      operationId: post-user
+      responses:
+        '200':
+          description: User Created
+          schema:
+            $ref: '#/definitions/User'
+        '400':
+          description: Missing Required Information
+          schema:
+            type: 'null'
+        '409':
+          description: Email Already Taken
+          schema:
+            type: 'null'
+      description: Create a new user.
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: '#/definitions/UserName'
+              password:
+                $ref: '#/definitions/UserPassword'
+            required:
+              - name
+              - password
+          description: Post the necessary fields for the API to create a new user.
+          x-examples:
+            Create User Bob Fellow:
+              firstName: Bob
+              lastName: Fellow
+              email: bob.fellow@gmail.com
+              dateOfBirth: '1996-08-24'
+    parameters: []
+  /user/register:
+    post:
+      summary: ''
+      operationId: post-register
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          schema:
+            type: string
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+          schema:
+            type: string
+      parameters:
+        - in: body
+          name: body
+          schema:
+            description: ''
+            type: object
+            x-examples:
+              example-1:
+                name: Hugo=-
+                password: Hugo=='
+                privilege: 0
+            properties:
+              name:
+                $ref: '#/definitions/UserName'
+              password:
+                $ref: '#/definitions/UserPassword'
+              privilege:
+                type: number
+            required:
+              - name
+              - password
+              - privilege
+    parameters: []
+  /user:
+    parameters: []
+    delete:
+      summary: ''
+      operationId: delete-user
+      responses:
+        '200':
+          description: OK
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: '#/definitions/UserName'
+              password:
+                $ref: '#/definitions/UserPassword'
+            required:
+              - name
+              - password
+          description: ''
+definitions:
+  User:
+    title: User
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Unique identifier for the given user.
+      name:
+        $ref: '#/definitions/UserName'
+      privilege:
+        type: number
+      createdAt:
+        type: string
+      updatedAt:
+        type: string
+    required:
+      - id
+  Token:
+    type: string
+    title: Token
+    minLength: 32
+    maxLength: 32
+  UserName:
+    title: UserName
+    type: string
+  UserPassword:
+    title: UserPassword
+    type: string
+securityDefinitions:
+  token:
+    name: token
+    type: apiKey
+    in: header
+basePath: /api
+responses: {}
+security:
+  - token: []

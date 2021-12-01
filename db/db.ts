@@ -7,7 +7,7 @@ import Token from "../models/Token.ts";
 import RoomUser from "../models/RoomUser.ts";
 
 const connector = new SQLite3Connector({
-  filepath: "./db/test.sqlite",
+  filepath: config().SQLITE_PATH,
 });
 
 const db = new Database(connector);
