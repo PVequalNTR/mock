@@ -37,7 +37,7 @@ async function generateToken(userId_: number, time = default_TOKEN_TTL) {
     value: token_g,
     userId: userId_,
     ttl: time,
-    expire: getTime(),
+    expire: getTime() + time,
   });
   return token_g;
 }

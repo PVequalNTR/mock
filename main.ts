@@ -12,7 +12,7 @@ const app = new Application();
 const router = new Router();
 const port = +config().PORT || 3000;
 
-app.use(logger);
+if (config().ENVIRONMENT == "development") app.use(logger);
 app.use(initR.prefix("/api/dev").routes());
 
 app.use(router.routes());
