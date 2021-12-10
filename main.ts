@@ -12,10 +12,10 @@ const router = new Router();
 const port = +config().PORT || 3000;
 
 app.use(logger);
-app.use(initR.prefix("/dev").routes());
+app.use(initR.prefix("/api/dev").routes());
 
 app.use(router.routes());
-app.use(userR.prefix("/user").routes());
+app.use(userR.prefix("/api/user").routes());
 app.use(router.allowedMethods());
 
 if (db.getConnector()._connected) {

@@ -1,5 +1,5 @@
-// abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678
-const dict = "Xyju4NsGxfrJC6knwgP1i0W7vTB2R3KHocOpadZYmQqFIVltUEDLSzMh8e5Ab";
+import { config } from "../deps.ts";
+const dict = config().HASH_TABLE;
 //same salt, bc it's convienent
 const salt = "4hs'\"\\87*8mnGTV?";
 

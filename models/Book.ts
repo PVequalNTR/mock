@@ -1,7 +1,7 @@
 import { Model, DataTypes } from "../deps.ts";
-import Token from "../models/Token.ts";
-class User extends Model {
-  static table = "user";
+import Post from "../models/Post.ts";
+class Book extends Model {
+  static table = "book";
   static timestamps = true;
   static fields = {
     id: {
@@ -17,8 +17,8 @@ class User extends Model {
     privilege: 0,
   };
   static tokens(): Model[] {
-    return this.hasMany(Token) as any;
+    return this.hasMany(Post) as any;
   }
 }
 
-export default User;
+export default Book;

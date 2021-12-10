@@ -3,6 +3,7 @@ import { Model } from "../deps.ts";
 import Token from "../models/Token.ts";
 import User from "../models/User.ts";
 import { config } from "../deps.ts";
+import getTime from "./time.ts";
 
 // todo: LRU
 declare global {
@@ -10,11 +11,7 @@ declare global {
 }
 
 const default_TOKEN_TTL = +(config().TOKEN_TTL || 7200000);
-const token_recycle_time = 60 * 1000;
-
-function getCTime() {
-  return Date.now() + new Date().getTimezoneOffset() * 60 * 1000;
-}
+const token_recycle_time = 10 * 1000;
 
 var tokenS;
 
@@ -25,36 +22,30 @@ if (!tokenS)
   };
 
 async function recycleToken() {
-  return await Promise.all(
-    (
-      await Token.where(
-        "createdAt",
-        ">",
-        "" + (getCTime() + default_TOKEN_TTL)
-      ).all()
-    ).map((x) => x.delete())
-  );
+  let expiredToken = await Token.where("expire", "<", "" + getTime()).all();
+  return await Promise.all(expiredToken.map((x) => x.delete()));
 }
 
 async function generateToken(userId_: number, time = default_TOKEN_TTL) {
   // use "crypto.getRandomValues", which is more secured.
-  const dict = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678";
+  const dict = config().HASH_TABLE;
   var randomSeed = new Uint8Array(64);
   await crypto.getRandomValues(randomSeed);
   let token_g = "";
   randomSeed.forEach((v) => (token_g += dict[v % dict.length]));
-  await Token.create({ value: token_g, userId: userId_, ttl: time });
+  await Token.create({
+    value: token_g,
+    userId: userId_,
+    ttl: time,
+    expire: getTime(),
+  });
   return token_g;
 }
 
 async function verifyToken(token: string) {
   let token_db = await Token.where("value", token).first();
   if (!token_db) return false;
-  if (
-    new Date("" + token_db.updatedAt).getTime() >
-    +("" + token_db.ttl) + getCTime()
-  )
-    return false;
+  if (+token_db.expire! < getTime()) return false;
   return await Token.where("id", token_db.id as number).user();
 }
 

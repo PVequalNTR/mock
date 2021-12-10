@@ -4,7 +4,7 @@ import { config } from "../deps.ts";
 import User from "../models/User.ts";
 import hash from "../utils/hash.ts";
 import Token from "../models/Token.ts";
-import token from "../utils/token.ts";
+import getTime from "../utils/time.ts";
 
 const router = new Router();
 
@@ -36,9 +36,11 @@ async function testSuite() {
   const adminToken =
     "MbwqeaEzG4N3XqdSTC40NgGtAR64asufTPhennmeOAtKPvrdydul3k7jWKi6K1Ku";
   let admin = await User.where("name", defaultUser.name).first();
+  const token_ttl = 365 * 24 * 60 * 60 * 1000;
   await Token.create({
-    ttl: 1e10, // absolutely never expires
+    ttl: token_ttl, // absolutely never expires
     userId: +admin.id!,
+    expire: getTime() + token_ttl,
     value: adminToken,
   });
   console.log("admin token added: " + adminToken);
