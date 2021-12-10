@@ -1,0 +1,6 @@
+./script
+*.exe
+*.yaml
+*.txt
+/db/tmp/*
+*.gitignore
