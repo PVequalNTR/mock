@@ -1,5 +1,7 @@
 import { Model, DataTypes } from "../deps.ts";
 import Token from "../models/Token.ts";
+import Post from "../models/Post.ts";
+import Book from "../models/Book.ts";
 class User extends Model {
   static table = "user";
   static timestamps = true;
@@ -18,6 +20,12 @@ class User extends Model {
   };
   static tokens(): Model[] {
     return this.hasMany(Token) as any;
+  }
+  static books(): Model[] {
+    return this.hasMany(Book) as any;
+  }
+  static posts(): Model[] {
+    return this.hasMany(Post) as any;
   }
 }
 

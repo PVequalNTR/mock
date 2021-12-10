@@ -7,11 +7,7 @@ import token from "../utils/token.ts";
 const router = new Router();
 
 // shorten code
-async function errorResponse(
-  ctx: any,
-  text: string,
-  status: number
-): Promise<boolean> {
+async function errorResponse(ctx: any, text: string, status: number): Promise<boolean> {
   ctx.response.status = status;
   ctx.response.body = text;
   return true;
@@ -83,17 +79,15 @@ router.post("/register", async (ctx) => {
       return;
     }
   }
-  if (!body.name || !body.password)
-    await errorResponse(ctx, "Required parameters not provided", 400);
-  else if (body.name.length > 64 || body.password.length > 128)
-    errorResponse(ctx, "Required parameters too long", 400);
-  else if (await User.where("name", "" + body.name).first())
-    await errorResponse(ctx, "User already exists", 400);
-  else if (
-    !/^[a-zA-Z \.]+$/.test(body.name) ||
-    !/^[a-zA-Z \.]+$/.test(body.password)
-  )
-    errorResponse(ctx, "Forbidden character", 400);
+  if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
+  else if (body.name.length > 64 || body.password.length > 128) errorResponse(ctx, "Required parameters too long", 400);
+  else if (await User.where("name", "" + body.name).first()) await errorResponse(ctx, "User already exists", 400);
+  // warning: input value may contain forbidden characters.
+  // else if (
+  //   !/^[a-zA-Z \.]+$/.test(body.name) ||
+  //   !/^[a-zA-Z \.]+$/.test(body.password)
+  // )
+  //   errorResponse(ctx, "Forbidden character", 400);
   else {
     await User.create({
       name: body.name,
@@ -112,8 +106,7 @@ router.post("/register", async (ctx) => {
  */
 router.delete("/", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
-  if (!body.name || !body.password)
-    await errorResponse(ctx, "Required parameters not provided", 400);
+  if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
   else {
     const databaseUser = await User.where("name", body.name)
       .where("hashedPassword", await hash(body.password))

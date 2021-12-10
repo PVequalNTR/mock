@@ -58,7 +58,7 @@ async function deleteToken(token: string) {
 }
 
 async function checkHeader(ctx: any): Promise<Model | false> {
-  const token_local = ctx.request.headers.get("token");
+  const token_local = ctx.request.headers.get("authentication");
   if (!token_local) {
     ctx.response.status = 401;
     ctx.response.body = "Unauthorized";

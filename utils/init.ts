@@ -16,7 +16,7 @@ let defaultUser = {
 setTimeout(async () => {
   await production();
   if (config().ENVIRONMENT == "development") await testSuite();
-}, 4000);
+}, 2000);
 
 // for production
 // 1. add default user
@@ -33,8 +33,7 @@ async function production() {
 // for test
 // 1. add default token
 async function testSuite() {
-  const adminToken =
-    "MbwqeaEzG4N3XqdSTC40NgGtAR64asufTPhennmeOAtKPvrdydul3k7jWKi6K1Ku";
+  const adminToken = "MbwqeaEzG4N3XqdSTC40NgGtAR64asufTPhennmeOAtKPvrdydul3k7jWKi6K1Ku";
   let admin = await User.where("name", defaultUser.name).first();
   const token_ttl = 365 * 24 * 60 * 60 * 1000;
   await Token.create({

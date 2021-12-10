@@ -1,5 +1,6 @@
 import { Model, DataTypes, Relationships } from "../deps.ts";
 import Book from "../models/Book.ts";
+import User from "../models/User.ts";
 class Post extends Model {
   static table = "post";
   static timestamps = true;
@@ -9,13 +10,21 @@ class Post extends Model {
       primaryKey: true,
       autoIncrement: true,
     },
-    ttl: DataTypes.INTEGER,
-    expire: DataTypes.INTEGER,
-    value: DataTypes.string(64),
+    title: DataTypes.string(64),
+    description: DataTypes.string(256),
+    privilege: DataTypes.INTEGER,
+    path: DataTypes.INTEGER,
   };
-  static defaults = { ttl: 0, value: "" };
-  static user() {
+  static defaults = {
+    title: "title",
+    description: "description",
+    privilege: 0,
+  };
+  static book() {
     return this.hasOne(Book);
+  }
+  static user() {
+    return this.hasOne(User);
   }
 }
 
