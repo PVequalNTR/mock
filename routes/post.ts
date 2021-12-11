@@ -15,6 +15,7 @@ async function errorResponse(ctx: any, text: string, status: number): Promise<bo
 }
 
 /**
+ * @api {get} /title/:title get post info by title
  * token in header is required
  */
 router.get("/title/:title", async (ctx) => {
@@ -27,6 +28,7 @@ router.get("/title/:title", async (ctx) => {
   const target = await dbResultArr.first();
   if (target) {
     delete target.privilege;
+    delete target.path;
     ctx.response.body = target;
   } else {
     errorResponse(ctx, "Not Found", 404);
@@ -34,7 +36,50 @@ router.get("/title/:title", async (ctx) => {
 });
 
 /**
- * @api {post} /register create a new Post
+ * @api {get} /id/:id get post info by id
+ * token in header is required
+ */
+router.get("/id/:id", async (ctx) => {
+  let user = await token.checkHeader(ctx);
+  if (!user) {
+    await errorResponse(ctx, "Unauthorized", 401);
+    return;
+  }
+  const dbResultArr = Post.where("id", "" + ctx.params.id);
+  const target = await dbResultArr.first();
+  if (target) {
+    delete target.privilege;
+    delete target.path;
+    ctx.response.body = target;
+  } else {
+    errorResponse(ctx, "Not Found", 404);
+  }
+});
+
+/**
+ * @api {get} /id/:id read post content info by id
+ * token in header is required
+ */
+router.get("/read/:id", async (ctx) => {
+  let user = await token.checkHeader(ctx);
+  if (!user) {
+    await errorResponse(ctx, "Unauthorized", 401);
+    return;
+  }
+  const dbResultArr = Post.where("id", "" + ctx.params.id);
+  const target = await dbResultArr.first();
+  throw new Error("Not Implemented");
+  if (target) {
+    delete target.privilege;
+    delete target.path;
+    ctx.response.body = target;
+  } else {
+    errorResponse(ctx, "Not Found", 404);
+  }
+});
+
+/**
+ * @api {post} /create create a new Post
  * @field {string} title - title
  * @field {string} description - description (optional)
  * @field {number} privilege - privilege requirement(should be below user's privilege) (optional)
@@ -65,7 +110,7 @@ router.post("/create", async (ctx) => {
 });
 
 /**
- * @api {post} /register create a new Post
+ * @api {post} / create a new Post
  * @field {string} title - title
  * @field {string} description - description (optional)
  * @field {number} privilege - privilege requirement(should be below user's privilege) (optional)

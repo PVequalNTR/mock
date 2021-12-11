@@ -14,6 +14,7 @@ async function errorResponse(ctx: any, text: string, status: number): Promise<bo
 }
 
 /**
+ * @api {get} /name/:name Get all users
  * token in header is required
  */
 router.get("/name/:name", async (ctx) => {
@@ -52,7 +53,7 @@ router.get("/id/:id", async (ctx) => {
 });
 
 /**
- * @api {post} login Get all users
+ * @api {post} /login login Get all users
  * @field {string} name - User name
  * @field {string} password - User password
  * @response {string} user - token for 1 hour with privilege higher than -1
@@ -119,7 +120,7 @@ router.post("/register", async (ctx) => {
 });
 
 /**
- * @api {delete} /token/:token Get user by token
+ * @api {delete} / delete a user and its own active token
  * @field {string} name - User name
  * @field {string} password - User password
  */
