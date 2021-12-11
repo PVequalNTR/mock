@@ -1,4 +1,4 @@
-import { Model, DataTypes, Relationships } from "../deps.ts";
+import { Model, DataTypes, Relationships } from "../../deps.ts";
 import Book from "../models/Book.ts";
 import User from "../models/User.ts";
 class Post extends Model {
@@ -14,11 +14,14 @@ class Post extends Model {
     description: DataTypes.string(256),
     privilege: DataTypes.INTEGER,
     path: DataTypes.INTEGER,
+    lastModified: DataTypes.INTEGER,
   };
   static defaults = {
     title: "title",
     description: "description",
     privilege: 0,
+    path: 0,
+    lastModified: 0,
   };
   static book() {
     return this.hasOne(Book);

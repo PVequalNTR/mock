@@ -1,6 +1,7 @@
 import { Model, Router } from "../deps.ts";
 
-import Post from "../models/Post.ts";
+import getTime from "../utils/time.ts";
+import Post from "../mc/Post.ts";
 import token from "../utils/token.ts";
 
 import bucket from "../utils/bucket.ts";
@@ -24,11 +25,10 @@ router.get("/title/:title", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const post = await Post.where("title", "" + ctx.params.title).first();
-  if (post) {
-    delete post.privilege;
-    delete post.path;
-    ctx.response.body = post;
+  let post = new Post();
+  await post.where("title", ctx.params.title);
+  if (post.inited) {
+    ctx.response.body = post.sanitize();
   } else errorResponse(ctx, "Not found", 404);
 });
 
@@ -42,16 +42,15 @@ router.get("/id/:id", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const post = await Post.where("id", "" + ctx.params.id).first();
-  if (post) {
-    delete post.privilege;
-    delete post.path;
-    ctx.response.body = post;
+  let post = new Post();
+  await post.where("id", ctx.params.id);
+  if (post.inited) {
+    ctx.response.body = post.sanitize();
   } else errorResponse(ctx, "Not found", 404);
 });
 
 /**
- * @api {get} /id/:id read post content info by id
+ * @api {get} /read/:id read post content info by id
  * token in header is required
  */
 router.get("/read/:id", async (ctx) => {
@@ -61,11 +60,29 @@ router.get("/read/:id", async (ctx) => {
     return;
   }
 
-  const post = await Post.where("id", "" + ctx.params.id).first();
+  const post = new Post();
+  await post.find(+ctx.params.id);
 
-  if (post) {
-    let content = await new bucket("post", +post.path!).getString();
+  if (post.inited && post.data!.path != 0) {
+    let content = await new bucket("post", +post.data!.path).getString();
     ctx.response.body = { content };
+  } else errorResponse(ctx, "Not found", 404);
+});
+
+/**
+ * @api {get} /query/description/:description search post info by description
+ * token in header is required
+ */
+router.get("/latest", async (ctx) => {
+  let user = await token.checkHeader(ctx);
+  if (!user) {
+    await errorResponse(ctx, "Unauthorized", 401);
+    return;
+  }
+  let posts = new Post();
+  await posts.orderBy("lastModified", "asc");
+  if (posts.dataArr.length != 0) {
+    ctx.response.body = { query: posts.dataArr };
   } else errorResponse(ctx, "Not found", 404);
 });
 
@@ -78,25 +95,31 @@ router.get("/read/:id", async (ctx) => {
  */
 router.post("/create", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
-  body.title = body.title || "title";
-  body.description = body.description || "description";
-  body.privilege = +body.privilege || 0;
+
   let user = await token.checkHeader(ctx);
-  if (user == false) errorResponse(ctx, "Unauthorized", 401);
-  else if (user.privilege! < body.privilege) await errorResponse(ctx, "Insufficient privilege", 403);
+
+  if (user == false) {
+    errorResponse(ctx, "Unauthorized", 401);
+    return;
+  }
+
+  body.title = body.title || "title";
+  // body.description = body.description || "description";
+  body.privilege = +body.privilege || 0;
+
+  body.userId = user.id;
+
+  if (user.privilege! < body.privilege) await errorResponse(ctx, "Insufficient privilege", 403);
   else if (body.title.length > 64 || body.description.length > 256) errorResponse(ctx, "Required parameters too long", 400);
-  else if (await Post.where("title", "" + body.title).first())
-    await errorResponse(ctx, "Required parameters missing or post already exists", 400);
-  // warning: input value may contain forbidden characters.
   else {
-    await Post.create({
-      userId: "" + user.id,
-      title: body.title,
-      description: body.description,
-      privilege: body.privilege,
-    });
-    ctx.response.status = 201;
-    ctx.response.body = "success";
+    let post = new Post();
+    await post.where("title", "" + body.title);
+    if (post.inited) await errorResponse(ctx, "Required parameters missing or post with same name already exists", 409);
+    {
+      await new Post().create(body);
+      ctx.response.status = 201;
+      ctx.response.body = "Success";
+    }
   }
 });
 
@@ -115,24 +138,22 @@ router.patch("/", async (ctx) => {
     errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  let post = await Post.where("userId", "" + user.id!)
-    .where("title", "" + body.title)
-    .first();
-  if (!post) errorResponse(ctx, "Not found", 404);
+  let post = new Post();
+
+  await post.where({ userId: user.id!.toString(), title: body.title });
+  if (!post.inited) errorResponse(ctx, "Not found", 404);
   else if (body.title.length > 64 || body.description.length > 256) errorResponse(ctx, "Required parameters too long", 400);
-  // warning: input value may contain forbidden characters.
   else {
-    let location = new bucket("Post", +post.id!);
+    let location = new bucket("Post", post.data!.id);
     if (body.content) {
-      body.path = +post.id!;
+      body.path = post.data!.id;
       location.writeString(body.content);
     }
     delete body.content;
+    body.lastModified = getTime();
+    await post.update(body);
     ctx.response.status = 202;
-    ctx.response.body = "success";
-    await Post.where("userId", "" + user.id!)
-      .where("title", "" + body.title)
-      .update(body);
+    ctx.response.body = "Success";
   }
 });
 
@@ -147,14 +168,13 @@ router.delete("/:id", async (ctx) => {
     errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  let post = await Post.where("userId", "" + user.id!)
-    .where("id", "" + ctx.params.id)
-    .first();
-  if (!post) errorResponse(ctx, "Not found", 404);
+  let post = new Post();
+  await post.where({ userId: user.id!.toString(), id: ctx.params.id });
+  if (!post.inited) errorResponse(ctx, "Not found", 404);
   else {
     ctx.response.status = 202;
-    ctx.response.body = "success";
-    await new bucket("Post", +post.id!).delete();
+    ctx.response.body = "Success";
+    await new bucket("Post", post.data!.id).delete();
     await post.delete();
   }
 });

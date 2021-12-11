@@ -1,7 +1,7 @@
 import { LRU } from "https://deno.land/x/lru@1.0.2/mod.ts";
 import { Model } from "../deps.ts";
-import Token from "../models/Token.ts";
-import User from "../models/User.ts";
+import Token from "../db/models/Token.ts";
+import User from "../db/models/User.ts";
 import { config } from "../deps.ts";
 import getTime from "./time.ts";
 

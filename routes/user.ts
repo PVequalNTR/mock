@@ -1,6 +1,6 @@
 import { Model, Router } from "../deps.ts";
 
-import User from "../models/User.ts";
+import User from "../db/models/User.ts";
 import hash from "../utils/hash.ts";
 import token from "../utils/token.ts";
 
@@ -42,7 +42,7 @@ router.get("/id/:id", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const target = await User.where("id", "" + ctx.params.id).first();
+  const target = await User.find(ctx.params.id);
   if (target) {
     delete target.hashedPassword;
     ctx.response.body = target;
@@ -100,7 +100,7 @@ router.post("/register", async (ctx) => {
   }
   if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
   else if (body.name.length > 64 || body.password.length > 128) errorResponse(ctx, "Required parameters too long", 400);
-  else if (await User.where("name", "" + body.name).first()) await errorResponse(ctx, "User already exists", 400);
+  else if (await User.where("name", "" + body.name).first()) await errorResponse(ctx, "User already exists", 409);
   // warning: input value may contain forbidden characters.
   // else if (
   //   !/^[a-zA-Z \.]+$/.test(body.name) ||
@@ -114,7 +114,7 @@ router.post("/register", async (ctx) => {
       privilege: body.privilege,
     });
     ctx.response.status = 201;
-    ctx.response.body = "success";
+    ctx.response.body = "Success";
   }
 });
 
@@ -137,7 +137,7 @@ router.delete("/", async (ctx) => {
       Promise.all(tokens.map((token) => token.delete()));
 
       ctx.response.status = 202;
-      ctx.response.body = "success";
+      ctx.response.body = "Success";
       // delete user
       await databaseUser.delete();
     }

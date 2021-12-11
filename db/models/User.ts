@@ -1,4 +1,4 @@
-import { Model, DataTypes } from "../deps.ts";
+import { Model, DataTypes } from "../../deps.ts";
 import Token from "../models/Token.ts";
 import Post from "../models/Post.ts";
 import Book from "../models/Book.ts";
@@ -16,6 +16,8 @@ class User extends Model {
     privilege: DataTypes.INTEGER,
   };
   static defaults = {
+    name: "name",
+    hashedPassword: "hashedPassword(salted sha512)",
     privilege: 0,
   };
   static tokens(): Model[] {

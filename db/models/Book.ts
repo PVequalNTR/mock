@@ -1,4 +1,4 @@
-import { Model, DataTypes } from "../deps.ts";
+import { Model, DataTypes } from "../../deps.ts";
 import Post from "../models/Post.ts";
 import User from "../models/User.ts";
 class Book extends Model {
