@@ -24,15 +24,12 @@ router.get("/title/:title", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const dbResultArr = Post.where("title", "" + ctx.params.title);
-  const target = await dbResultArr.first();
+  const target = await Post.where("title", "" + ctx.params.title).first();
   if (target) {
     delete target.privilege;
     delete target.path;
     ctx.response.body = target;
-  } else {
-    errorResponse(ctx, "Not Found", 404);
-  }
+  } else errorResponse(ctx, "Not Found", 404);
 });
 
 /**
@@ -51,9 +48,7 @@ router.get("/id/:id", async (ctx) => {
     delete target.privilege;
     delete target.path;
     ctx.response.body = target;
-  } else {
-    errorResponse(ctx, "Not Found", 404);
-  }
+  } else errorResponse(ctx, "Not Found", 404);
 });
 
 /**
@@ -68,14 +63,11 @@ router.get("/read/:id", async (ctx) => {
   }
   const dbResultArr = Post.where("id", "" + ctx.params.id);
   const target = await dbResultArr.first();
-  throw new Error("Not Implemented");
+
   if (target) {
-    delete target.privilege;
-    delete target.path;
-    ctx.response.body = target;
-  } else {
-    errorResponse(ctx, "Not Found", 404);
-  }
+    let content = await new bucket("post", +target.path!).getString();
+    ctx.response.body = { content };
+  } else errorResponse(ctx, "Not Found", 404);
 });
 
 /**
@@ -131,7 +123,7 @@ router.patch("/", async (ctx) => {
   else if (body.title.length > 64 || body.description.length > 128) errorResponse(ctx, "Required parameters too long", 400);
   // warning: input value may contain forbidden characters.
   else {
-    let location = new bucket("post", +post.id!);
+    let location = new bucket("Post", +post.id!);
     if (body.content) {
       body.path = +post.id!;
       location.writeString(body.content);

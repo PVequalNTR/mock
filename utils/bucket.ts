@@ -1,7 +1,8 @@
 import { config } from "../deps.ts";
 import { ensureDir } from "../deps.ts";
 
-let basePath = "./" + config().STORAGE_PATH;
+let basePath = "./" + config().STORAGE_PATH.replace(/\/$/, "");
+const bucketSize = 3; // 100**3
 
 interface bucket {
   constructor(name: string): bucket;
@@ -16,10 +17,11 @@ class bucket {
     this.id = id || 0;
   }
   public async getPath(id: number = this.id): Promise<string> {
-    let path = basePath + this.name;
+    let path = basePath + "/" + this.name;
     let sid = "" + id;
+    sid = "0".repeat(bucketSize - sid.length) + sid;
     for (let i = 0; i < sid.length; i += 2) path += "/" + sid.slice(i, i + 2);
-    await ensureDir(path.replace(/(\/[.a-zA-Z0-9]*)$/, ""));
+    await ensureDir(path.replace(/([.a-zA-Z0-9]*)$/, ""));
     return path;
   }
   public async getArrayBuffer(id: number = this.id): Promise<Uint8Array> {
@@ -34,7 +36,6 @@ class bucket {
     console.log(`I read ${count} words.`);
   }
   public async getString(id: number = this.id): Promise<string> {
-    console.warn(`getString hasn't been tested yet.`);
     return await Deno.readTextFile(await this.getPath(id));
   }
   public async writeString(s: string, id: number = this.id): Promise<void> {

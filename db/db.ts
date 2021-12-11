@@ -8,7 +8,7 @@ import Post from "../models/Post.ts";
 import Book from "../models/Book.ts";
 
 await ensureDir("./" + config().STORAGE_PATH);
-const sqlitePath = config().STORAGE_PATH + "/db.sqlite";
+const sqlitePath = config().STORAGE_PATH.replace(/\/$/, "") + "/db.sqlite";
 
 const connector = new SQLite3Connector({
   filepath: sqlitePath,
