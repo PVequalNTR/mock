@@ -1,6 +1,13 @@
 import { Middleware } from "../deps.ts";
 import { green, bgRed, black, bgBrightWhite } from "../deps.ts";
 
+/**
+ *
+ * @param {string|number} x something to log
+ * @param {number} d display width in terminal
+ * @param align align such as left, right, mid
+ * @returns
+ */
 function format(x: String | number, d: number, align: "left" | "mid" | "right" = "right") {
   let spacing = " ";
   if (typeof x === "number") spacing = "0";
@@ -10,6 +17,11 @@ function format(x: String | number, d: number, align: "left" | "mid" | "right" =
   else return spacing.repeat(reSpacing / 2) + x + spacing.repeat(Math.ceil(reSpacing / 2));
 }
 
+/**
+ * middleware for logging into console(oak, deno)
+ * @param {RouterContext} ctx
+ * @param next
+ */
 export default async function logger(ctx: any, next: () => any): Promise<any> {
   let text = "";
   const start = Date.now();

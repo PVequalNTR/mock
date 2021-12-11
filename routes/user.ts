@@ -33,6 +33,25 @@ router.get("/name/:name", async (ctx) => {
 });
 
 /**
+ * token in header is required
+ */
+router.get("/id/:id", async (ctx) => {
+  let user = await token.checkHeader(ctx);
+  if (!user) {
+    await errorResponse(ctx, "Unauthorized", 401);
+    return;
+  }
+  const dbResultArr = User.where("id", "" + ctx.params.id);
+  const target = await dbResultArr.first();
+  if (target) {
+    delete target.hashedPassword;
+    ctx.response.body = target;
+  } else {
+    errorResponse(ctx, "Not Found", 404);
+  }
+});
+
+/**
  * @api {post} login Get all users
  * @field {string} name - User name
  * @field {string} password - User password

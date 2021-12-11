@@ -21,11 +21,21 @@ if (!tokenS)
     timer: setInterval(recycleToken, token_recycle_time),
   };
 
+/**
+ * recycle token (private)
+ * @returns {Promise<void>}
+ */
 async function recycleToken() {
   let expiredToken = await Token.where("expire", "<", "" + getTime()).all();
   return await Promise.all(expiredToken.map((x) => x.delete()));
 }
 
+/**
+ * generateToken by user id
+ * @param {number} userId_
+ * @param {number} time time to live in milliseconds
+ * @returns {Promise<string>} token(value)
+ */
 async function generateToken(userId_: number, time = default_TOKEN_TTL) {
   // use "crypto.getRandomValues", which is more secured.
   const dict = config().HASH_TABLE;
@@ -42,6 +52,11 @@ async function generateToken(userId_: number, time = default_TOKEN_TTL) {
   return token_g;
 }
 
+/**
+ * verify token from database (private)
+ * @param {string} token token to be verified
+ * @returns {Promise<boolean|User>} false if fail, user if success
+ */
 async function verifyToken(token: string) {
   let token_db = await Token.where("value", token).first();
   if (!token_db) return false;
@@ -49,6 +64,11 @@ async function verifyToken(token: string) {
   return await Token.where("id", token_db.id as number).user();
 }
 
+/**
+ * delete token from database
+ * @param {string} token token(value) to be deleted
+ * @returns {Promise<boolean>} true if success
+ */
 async function deleteToken(token: string) {
   if (!(await verifyToken(token))) {
     return false;
@@ -57,6 +77,11 @@ async function deleteToken(token: string) {
   return true;
 }
 
+/**
+ * find token's owner(usually a user) by token
+ * @param {RouterContext} ctx oak context
+ * @returns {User} user in database
+ */
 async function checkHeader(ctx: any): Promise<Model | false> {
   const token_local = ctx.request.headers.get("authentication");
   if (!token_local) {
