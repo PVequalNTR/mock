@@ -1,8 +1,8 @@
 import { config } from "../deps.ts";
-import { ensureDir } from "../deps.ts";
+import { ensureDir, exists } from "../deps.ts";
 
 let basePath = "./" + config().STORAGE_PATH.replace(/\/$/, "");
-const bucketSize = 3; // 100**3
+const bucketSize = 3 * 2; // 100**3
 
 interface bucket {
   constructor(name: string): bucket;
@@ -35,11 +35,33 @@ class bucket {
     const count = countWords(text);
     console.log(`I read ${count} words.`);
   }
+  /**
+   * get string form file
+   * @param {number} id file id
+   * @returns {string} file content in string
+   */
   public async getString(id: number = this.id): Promise<string> {
     return await Deno.readTextFile(await this.getPath(id));
   }
+  /**
+   * write string to file
+   * @param {number} id file id
+   * @returns {void} void
+   */
   public async writeString(s: string, id: number = this.id): Promise<void> {
     await Deno.writeTextFile(await this.getPath(id), s);
+  }
+  /**
+   * delete file
+   * @param {number} id file id
+   * @returns {boolean} true if success
+   */
+  public async delete(id: number = this.id): Promise<boolean> {
+    if (await exists(await this.getPath(id))) {
+      await Deno.remove(await this.getPath(id));
+      return true;
+    }
+    return false;
   }
 }
 

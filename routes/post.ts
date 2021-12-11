@@ -24,12 +24,12 @@ router.get("/title/:title", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const target = await Post.where("title", "" + ctx.params.title).first();
-  if (target) {
-    delete target.privilege;
-    delete target.path;
-    ctx.response.body = target;
-  } else errorResponse(ctx, "Not Found", 404);
+  const post = await Post.where("title", "" + ctx.params.title).first();
+  if (post) {
+    delete post.privilege;
+    delete post.path;
+    ctx.response.body = post;
+  } else errorResponse(ctx, "Not found", 404);
 });
 
 /**
@@ -42,13 +42,12 @@ router.get("/id/:id", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const dbResultArr = Post.where("id", "" + ctx.params.id);
-  const target = await dbResultArr.first();
-  if (target) {
-    delete target.privilege;
-    delete target.path;
-    ctx.response.body = target;
-  } else errorResponse(ctx, "Not Found", 404);
+  const post = await Post.where("id", "" + ctx.params.id).first();
+  if (post) {
+    delete post.privilege;
+    delete post.path;
+    ctx.response.body = post;
+  } else errorResponse(ctx, "Not found", 404);
 });
 
 /**
@@ -61,13 +60,13 @@ router.get("/read/:id", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const dbResultArr = Post.where("id", "" + ctx.params.id);
-  const target = await dbResultArr.first();
 
-  if (target) {
-    let content = await new bucket("post", +target.path!).getString();
+  const post = await Post.where("id", "" + ctx.params.id).first();
+
+  if (post) {
+    let content = await new bucket("post", +post.path!).getString();
     ctx.response.body = { content };
-  } else errorResponse(ctx, "Not Found", 404);
+  } else errorResponse(ctx, "Not found", 404);
 });
 
 /**
@@ -85,7 +84,7 @@ router.post("/create", async (ctx) => {
   let user = await token.checkHeader(ctx);
   if (user == false) errorResponse(ctx, "Unauthorized", 401);
   else if (user.privilege! < body.privilege) await errorResponse(ctx, "Insufficient privilege", 403);
-  else if (body.title.length > 64 || body.description.length > 128) errorResponse(ctx, "Required parameters too long", 400);
+  else if (body.title.length > 64 || body.description.length > 256) errorResponse(ctx, "Required parameters too long", 400);
   else if (await Post.where("title", "" + body.title).first())
     await errorResponse(ctx, "Required parameters missing or post already exists", 400);
   // warning: input value may contain forbidden characters.
@@ -119,8 +118,8 @@ router.patch("/", async (ctx) => {
   let post = await Post.where("userId", "" + user.id!)
     .where("title", "" + body.title)
     .first();
-  if (!post) errorResponse(ctx, "Not Found", 404);
-  else if (body.title.length > 64 || body.description.length > 128) errorResponse(ctx, "Required parameters too long", 400);
+  if (!post) errorResponse(ctx, "Not found", 404);
+  else if (body.title.length > 64 || body.description.length > 256) errorResponse(ctx, "Required parameters too long", 400);
   // warning: input value may contain forbidden characters.
   else {
     let location = new bucket("Post", +post.id!);
@@ -134,6 +133,29 @@ router.patch("/", async (ctx) => {
     await Post.where("userId", "" + user.id!)
       .where("title", "" + body.title)
       .update(body);
+  }
+});
+
+/**
+ * @api {delete} / delete a Post
+ * @field {string} id - id
+ * token in header is required
+ */
+router.delete("/:id", async (ctx) => {
+  let user = await token.checkHeader(ctx);
+  if (user == false) {
+    errorResponse(ctx, "Unauthorized", 401);
+    return;
+  }
+  let post = await Post.where("userId", "" + user.id!)
+    .where("id", "" + ctx.params.id)
+    .first();
+  if (!post) errorResponse(ctx, "Not found", 404);
+  else {
+    ctx.response.status = 202;
+    ctx.response.body = "success";
+    await new bucket("Post", +post.id!).delete();
+    await post.delete();
   }
 });
 

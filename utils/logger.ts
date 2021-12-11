@@ -30,5 +30,7 @@ export default async function logger(ctx: any, next: () => any): Promise<any> {
   if (ctx.response.status.toString()[0] == "2") text += " " + green(`${ctx.response.status}`);
   else text += " " + bgRed(black(`${ctx.response.status}`));
   text += ` ${format(Date.now() - start, 3)}ms`;
+  if (typeof ctx.response.body === "string") text += " " + ctx.response.body.toString().slice(0, 40);
+  else text += " {object}";
   console.log(text);
 }

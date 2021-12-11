@@ -14,7 +14,7 @@ async function errorResponse(ctx: any, text: string, status: number): Promise<bo
 }
 
 /**
- * @api {get} /name/:name Get all users
+ * @api {get} /name/:name get user by name
  * token in header is required
  */
 router.get("/name/:name", async (ctx) => {
@@ -23,17 +23,17 @@ router.get("/name/:name", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const dbResultArr = User.where("name", "" + ctx.params.name);
-  const target = await dbResultArr.first();
+  const target = await User.where("name", "" + ctx.params.name).first();
   if (target) {
     delete target.hashedPassword;
     ctx.response.body = target;
   } else {
-    errorResponse(ctx, "Not Found", 404);
+    errorResponse(ctx, "Not found", 404);
   }
 });
 
 /**
+ * @api {get} /id/:id user by id
  * token in header is required
  */
 router.get("/id/:id", async (ctx) => {
@@ -42,13 +42,12 @@ router.get("/id/:id", async (ctx) => {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const dbResultArr = User.where("id", "" + ctx.params.id);
-  const target = await dbResultArr.first();
+  const target = await User.where("id", "" + ctx.params.id).first();
   if (target) {
     delete target.hashedPassword;
     ctx.response.body = target;
   } else {
-    errorResponse(ctx, "Not Found", 404);
+    errorResponse(ctx, "Not found", 404);
   }
 });
 
@@ -136,10 +135,11 @@ router.delete("/", async (ctx) => {
       // delete tokens
       let tokens = await User.where("id", "" + databaseUser.id).tokens();
       Promise.all(tokens.map((token) => token.delete()));
+
+      ctx.response.status = 202;
+      ctx.response.body = "success";
       // delete user
       await databaseUser.delete();
-      ctx.response.status = 200;
-      ctx.response.body = "success";
     }
   }
 });
