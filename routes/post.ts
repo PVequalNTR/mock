@@ -1,7 +1,7 @@
 import { Model, Router } from "../deps.ts";
 
 import getTime from "../utils/time.ts";
-import Post from "../mc/Post.ts";
+import Post from "../items/Post.ts";
 import token from "../utils/token.ts";
 
 import bucket from "../utils/bucket.ts";
