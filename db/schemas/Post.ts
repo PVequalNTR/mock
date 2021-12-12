@@ -1,8 +1,8 @@
-import { Model, DataTypes } from "../../deps.ts";
-import Post from "../models/Post.ts";
-import User from "../models/User.ts";
-class Book extends Model {
-  static table = "book";
+import { Model, DataTypes, Relationships } from "../../deps.ts";
+import Book from "../schemas/Book.ts";
+import User from "../schemas/User.ts";
+class Post extends Model {
+  static table = "post";
   static timestamps = true;
   static fields = {
     id: {
@@ -13,18 +13,22 @@ class Book extends Model {
     title: DataTypes.string(64),
     description: DataTypes.string(256),
     privilege: DataTypes.INTEGER,
+    path: DataTypes.INTEGER,
+    lastModified: DataTypes.INTEGER,
   };
   static defaults = {
     title: "title",
     description: "description",
     privilege: 0,
+    path: 0,
+    lastModified: 0,
   };
-  static posts(): Model[] {
-    return this.hasMany(Post) as any;
+  static book() {
+    return this.hasOne(Book);
   }
   static user() {
     return this.hasOne(User);
   }
 }
 
-export default Book;
+export default Post;

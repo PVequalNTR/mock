@@ -1,9 +1,9 @@
 import { Router } from "../deps.ts";
 import { config } from "../deps.ts";
 
-import User from "../db/models/User.ts";
+import User from "../db/schemas/User.ts";
 import hash from "../utils/hash.ts";
-import Token from "../db/models/Token.ts";
+import Token from "../db/schemas/Token.ts";
 import getTime from "../utils/time.ts";
 
 const router = new Router();

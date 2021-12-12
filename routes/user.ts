@@ -1,6 +1,6 @@
 import { Model, Router } from "../deps.ts";
 
-import User from "../db/models/User.ts";
+import User from "../db/schemas/User.ts";
 import hash from "../utils/hash.ts";
 import token from "../utils/token.ts";
 

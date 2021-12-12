@@ -1,4 +1,4 @@
-import User from "../db/models/User.ts";
+import User from "../db/schemas/User.ts";
 
 let requiredData: string[] = [];
 for (const key in User.fields) if (Object.prototype.hasOwnProperty.call(User.fields, key)) requiredData.push(key);

@@ -1,5 +1,5 @@
 import { Model, DataTypes, Relationships } from "../../deps.ts";
-import User from "../models/User.ts";
+import User from "../schemas/User.ts";
 class Token extends Model {
   static table = "token";
   static timestamps = true;

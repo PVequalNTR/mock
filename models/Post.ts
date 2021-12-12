@@ -1,5 +1,5 @@
 import { FieldValue } from "../deps.ts";
-import Post from "../db/models/Post.ts";
+import Post from "../db/schemas/Post.ts";
 
 type fixType = {
   id: number;

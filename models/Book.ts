@@ -1,4 +1,4 @@
-import Book from "../db/models/Book.ts";
+import Book from "../db/schemas/Book.ts";
 
 let requiredData: string[] = [];
 for (const key in Book.fields) if (Object.prototype.hasOwnProperty.call(Book.fields, key)) requiredData.push(key);

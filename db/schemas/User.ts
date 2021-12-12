@@ -1,7 +1,7 @@
 import { Model, DataTypes } from "../../deps.ts";
-import Token from "../models/Token.ts";
-import Post from "../models/Post.ts";
-import Book from "../models/Book.ts";
+import Token from "../schemas/Token.ts";
+import Post from "../schemas/Post.ts";
+import Book from "../schemas/Book.ts";
 class User extends Model {
   static table = "user";
   static timestamps = true;

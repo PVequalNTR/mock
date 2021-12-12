@@ -2,10 +2,10 @@ import { Database, SQLite3Connector, Relationships } from "../deps.ts";
 import { config } from "../deps.ts";
 import { ensureDir } from "../deps.ts";
 
-import User from "../db/models/User.ts";
-import Token from "../db/models/Token.ts";
-import Post from "../db/models/Post.ts";
-import Book from "../db/models/Book.ts";
+import User from "../db/schemas/User.ts";
+import Token from "../db/schemas/Token.ts";
+import Post from "../db/schemas/Post.ts";
+import Book from "../db/schemas/Book.ts";
 
 await ensureDir("./" + config().STORAGE_PATH);
 const sqlitePath = config().STORAGE_PATH.replace(/\/$/, "") + "/db.sqlite";
