@@ -35,3 +35,9 @@
   delete unnecessary data to avoid sending something confidential to user
 - cleanValue
   value which has no possibility to inject the database
+
+## setup
+
+1. download nginx and use the ``nginx.conf`` in the root folder
+2. launch nginx and deno@v1.13.2
+3. ready to go(although I am too lazy to update the api file, which is too stale now)
