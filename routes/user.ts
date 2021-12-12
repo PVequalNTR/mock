@@ -1,6 +1,6 @@
 import { Model, Router } from "../deps.ts";
 
-import User from "../db/schemas/User.ts";
+import User from "../models/User.ts";
 import hash from "../utils/hash.ts";
 import token from "../utils/token.ts";
 
@@ -18,18 +18,16 @@ async function errorResponse(ctx: any, text: string, status: number): Promise<bo
  * token in header is required
  */
 router.get("/name/:name", async (ctx) => {
-  let user = await token.checkHeader(ctx);
-  if (!user) {
+  let authUser = await token.checkHeader(ctx);
+  if (!authUser) {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const target = await User.where("name", "" + ctx.params.name).first();
-  if (target) {
-    delete target.hashedPassword;
-    ctx.response.body = target;
-  } else {
-    errorResponse(ctx, "Not found", 404);
-  }
+  const user = new User();
+  user.where("name", ctx.params.name);
+  await user.first();
+  if (user.inited) ctx.response.body = user.data;
+  else errorResponse(ctx, "Not found", 404);
 });
 
 /**
@@ -37,45 +35,16 @@ router.get("/name/:name", async (ctx) => {
  * token in header is required
  */
 router.get("/id/:id", async (ctx) => {
-  let user = await token.checkHeader(ctx);
-  if (!user) {
+  let authUser = await token.checkHeader(ctx);
+  if (!authUser) {
     await errorResponse(ctx, "Unauthorized", 401);
     return;
   }
-  const target = await User.find(ctx.params.id);
-  if (target) {
-    delete target.hashedPassword;
-    ctx.response.body = target;
-  } else {
-    errorResponse(ctx, "Not found", 404);
-  }
-});
-
-/**
- * @api {post} /login login Get all users
- * @field {string} name - User name
- * @field {string} password - User password
- * @response {string} user - token for 1 hour with privilege higher than -1
- */
-router.post("/login", async (ctx) => {
-  const body = await ctx.request.body({ type: "json" }).value;
-  if (!body.name || !body.password) {
-    errorResponse(ctx, "Required parameters not provided", 404);
-    return;
-  }
-  const targets = await User.where("name", "" + body.name)
-    .where("hashedPassword", await hash(body.password))
-    .first();
-  if (!targets) {
-    errorResponse(ctx, "Invalid username or password", 401);
-  } else {
-    const ttl = 3600 * 1000;
-    const token_ = await token.generate(+targets.id!, ttl);
-    ctx.response.body = {
-      token: token_,
-      expiredAt: Date.now() + ttl,
-    };
-  }
+  const user = new User();
+  user.where("id", ctx.params.id);
+  await user.first();
+  if (user.inited) ctx.response.body = user.data;
+  else errorResponse(ctx, "Not found", 404);
 });
 
 /**
@@ -100,7 +69,6 @@ router.post("/register", async (ctx) => {
   }
   if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
   else if (body.name.length > 64 || body.password.length > 128) errorResponse(ctx, "Required parameters too long", 400);
-  else if (await User.where("name", "" + body.name).first()) await errorResponse(ctx, "User already exists", 409);
   // warning: input value may contain forbidden characters.
   // else if (
   //   !/^[a-zA-Z \.]+$/.test(body.name) ||
@@ -108,7 +76,7 @@ router.post("/register", async (ctx) => {
   // )
   //   errorResponse(ctx, "Forbidden character", 400);
   else {
-    await User.create({
+    await new User().create({
       name: body.name,
       hashedPassword: await hash(body.password),
       privilege: body.privilege,
@@ -127,19 +95,18 @@ router.delete("/", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
   if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
   else {
-    const databaseUser = await User.where("name", body.name)
-      .where("hashedPassword", await hash(body.password))
-      .first();
-    if (!databaseUser) await errorResponse(ctx, "Unauthorized", 401);
+    // perform a login active
+    const user = new User();
+    user.where("name", body.name);
+    user.where("hashedPassword", await hash(body.password));
+    await user.first();
+    if (!user.inited) await errorResponse(ctx, "Unauthorized", 401);
     else {
-      // delete tokens
-      let tokens = await User.where("id", "" + databaseUser.id).tokens();
-      Promise.all(tokens.map((token) => token.delete()));
-
+      await token.deleteByUser(user.data!.id);
       ctx.response.status = 202;
       ctx.response.body = "Success";
       // delete user
-      await databaseUser.delete();
+      await user.delete();
     }
   }
 });

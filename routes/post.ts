@@ -26,9 +26,10 @@ router.get("/title/:title", async (ctx) => {
     return;
   }
   let post = new Post();
-  await post.where("title", ctx.params.title);
+  post.where("title", ctx.params.title);
+  await post.first();
   if (post.inited) {
-    ctx.response.body = post.sanitize();
+    ctx.response.body = post.getSanitzedValue();
   } else errorResponse(ctx, "Not found", 404);
 });
 
@@ -43,9 +44,10 @@ router.get("/id/:id", async (ctx) => {
     return;
   }
   let post = new Post();
-  await post.where("id", ctx.params.id);
+  post.where("id", ctx.params.id);
+  await post.first();
   if (post.inited) {
-    ctx.response.body = post.sanitize();
+    ctx.response.body = post.getSanitzedValue();
   } else errorResponse(ctx, "Not found", 404);
 });
 
@@ -61,7 +63,8 @@ router.get("/read/:id", async (ctx) => {
   }
 
   const post = new Post();
-  await post.find(+ctx.params.id);
+  post.where("id", ctx.params.id);
+  await post.first();
 
   if (post.inited && post.data!.path != 0) {
     let content = await new bucket("post", +post.data!.path).getString();
@@ -80,10 +83,11 @@ router.get("/latest", async (ctx) => {
     return;
   }
   let posts = new Post();
-  await posts.orderBy("lastModified", "asc");
-  if (posts.dataArr.length != 0) {
-    ctx.response.body = { query: posts.dataArr };
-  } else errorResponse(ctx, "Not found", 404);
+  posts.where("privilege", "<=", "" + user.privilege);
+  posts.orderBy("lastModified", "asc");
+  posts.limit(10);
+  await posts.all();
+  ctx.response.body = { query: posts.data || [] };
 });
 
 /**
@@ -112,19 +116,15 @@ router.post("/create", async (ctx) => {
   if (user.privilege! < body.privilege) await errorResponse(ctx, "Insufficient privilege", 403);
   else if (body.title.length > 64 || body.description.length > 256) errorResponse(ctx, "Required parameters too long", 400);
   else {
-    let post = new Post();
-    await post.where("title", "" + body.title);
-    if (post.inited) await errorResponse(ctx, "Required parameters missing or post with same name already exists", 409);
-    {
-      await new Post().create(body);
-      ctx.response.status = 201;
-      ctx.response.body = "Success";
-    }
+    await new Post().create(body);
+    ctx.response.status = 201;
+    ctx.response.body = "Success";
   }
 });
 
 /**
  * @api {post} / create a new Post
+ * @field {string} id - id
  * @field {string} title - title
  * @field {string} description - description (optional)
  * @field {number} privilege - privilege requirement(should be below user's privilege) (optional)
@@ -140,7 +140,8 @@ router.patch("/", async (ctx) => {
   }
   let post = new Post();
 
-  await post.where({ userId: user.id!.toString(), title: body.title });
+  post.where({ userId: user.id!.toString(), id: body.id });
+  await post.first();
   if (!post.inited) errorResponse(ctx, "Not found", 404);
   else if (body.title.length > 64 || body.description.length > 256) errorResponse(ctx, "Required parameters too long", 400);
   else {
@@ -169,7 +170,8 @@ router.delete("/:id", async (ctx) => {
     return;
   }
   let post = new Post();
-  await post.where({ userId: user.id!.toString(), id: ctx.params.id });
+  post.where({ userId: user.id!.toString(), id: ctx.params.id });
+  await post.first();
   if (!post.inited) errorResponse(ctx, "Not found", 404);
   else {
     ctx.response.status = 202;

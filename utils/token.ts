@@ -7,16 +7,16 @@ import getTime from "./time.ts";
 
 // todo: LRU
 declare global {
-  var tokenS: { tokenCache: LRU<string>; timer: number };
+  var tokenStorage: { tokenCache: LRU<string>; timer: number };
 }
 
 const default_TOKEN_TTL = +(config().TOKEN_TTL || 7200000);
 const token_recycle_time = 10 * 1000;
 
-var tokenS;
+var tokenStorage;
 
-if (!tokenS)
-  tokenS = {
+if (!tokenStorage)
+  tokenStorage = {
     tokenCache: new LRU(50),
     timer: setInterval(recycleToken, token_recycle_time),
   };
@@ -78,6 +78,18 @@ async function deleteToken(token: string) {
 }
 
 /**
+ * delete token from database by user id
+ * @param {string} token token(value) to be deleted
+ * @returns {Promise<boolean>} true if success
+ */
+async function deleteTokenByUser(id: string | number) {
+  let tokens = User.where("id", id).tokens();
+  if (tokens.length === 0) return false;
+  Promise.all(tokens.map(async (x) => x.delete()));
+  return true;
+}
+
+/**
  * find token's owner(usually a user) by token
  * @param {RouterContext} ctx oak context
  * @returns {User} user in database
@@ -102,5 +114,6 @@ export default {
   generate: generateToken,
   verify: verifyToken,
   delete: deleteToken,
+  deleteByUser: deleteTokenByUser,
   checkHeader,
 };
