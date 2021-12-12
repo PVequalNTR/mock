@@ -16,9 +16,11 @@
   - litesql file
   - litesql tool(included gitignore)
   - `db.ts`
-- models
+- db/models
   - database model
   - pivot model
+- models
+  - tools to get in touch with database
 - routes
   - api routes,
     frontEnd are expected to be another project
@@ -26,3 +28,10 @@
   - script for server
 - utils
   - some other file...
+
+## variable naming
+
+- sanitize
+  delete unnecessary data to avoid sending something confidential to user
+- cleanValue
+  value which has no possibility to inject the database
