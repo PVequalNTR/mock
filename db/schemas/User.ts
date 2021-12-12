@@ -20,13 +20,13 @@ class User extends Model {
     hashedPassword: "hashedPassword(salted sha512)",
     privilege: 0,
   };
-  static tokens(): Model[] {
+  static tokens(): Promise<Model[]> {
     return this.hasMany(Token) as any;
   }
-  static books(): Model[] {
+  static books(): Promise<Model[]> {
     return this.hasMany(Book) as any;
   }
-  static posts(): Model[] {
+  static posts(): Promise<Model[]> {
     return this.hasMany(Post) as any;
   }
 }

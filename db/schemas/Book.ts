@@ -21,7 +21,7 @@ class Book extends Model {
     privilege: 0,
     lastModified: 0,
   };
-  static posts(): Model[] {
+  static posts(): Promise<Model[]> {
     return this.hasMany(Post) as any;
   }
   static user() {

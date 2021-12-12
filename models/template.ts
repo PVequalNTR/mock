@@ -1,12 +1,9 @@
 import { Model } from "../deps.ts";
 
 function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: string[]; addOnData?: string[] }) {
-  type fixType = {
-    id: number;
-  };
-
-  type inherentType = typeof Item.defaults;
-  interface itemData extends inherentType, fixType {}
+  class itemData {
+    id: number = 1;
+  }
 
   const secretData = limitFields?.secretData || []; //secret
   let requiredData: string[] = []; //all(public+secret)
@@ -21,11 +18,17 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
   requiredData = requiredData.concat(addOnData);
   publicData = publicData.concat(addOnData);
 
-  class schemaLayer {
+  interface sqlInstruction {
+    where(paramlist: { [key in string]: string }): void;
+    where(fieldName: string, fieldValue: string | number): void;
+    where(fieldName: string, clauseOperator: string, fieldValue: string | number): void;
+  }
+  class schemaLayer implements sqlInstruction {
     public inited = false;
     public data?: itemData;
+    public datas?: itemData[];
     public isList = false;
-    private queryInfo: any = Item;
+    private queryInfo: typeof Model = Item;
 
     constructor(data?: itemData) {
       if (data) {
@@ -34,15 +37,40 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       }
     }
 
+    /**
+     * where clause in sql
+     *
+     * @param {{ [x: string]: string }} paramlist Start of interval
+     */ /**
+     * sugar version impl for where clause in sql
+     *
+     * @param {string} fieldName Array containing start and end dates.
+     * @param {string | number} fieldValue
+     */ /**
+     * where clause in sql with operator(>,<,=,etc)
+     *
+     * @param {string} fieldName Array containing start and end dates.
+     * @param {string} clauseOperator
+     * @param {string | number} fieldValue
+     */
+    public where(paramlist: { [x: string]: string }): void;
+    public where(fieldName: string, fieldValue: string | number): void;
+    public where(fieldName: string, clauseOperator: string, fieldValue: string | number): void;
+    public where(fieldName: any, clauseOperator?: any, fieldValue?: any): void {
+      this.queryInfo = this.queryInfo.where.apply(this.queryInfo, arguments as any);
+    }
+
     public async all(): Promise<void> {
-      this.data = await this.queryInfo.all();
-      if (this.data) this.isList = true;
-      else this.inited = false;
+      this.datas = (await this.queryInfo.all()) as unknown as itemData[];
+      if (this.datas) {
+        this.isList = true;
+        this.inited = true;
+      } else this.inited = false;
       return;
     }
 
     public async first(): Promise<void> {
-      this.data = await this.queryInfo.first();
+      this.data = (await this.queryInfo.first()) as unknown as itemData;
       if (this.data) this.inited = true;
       else this.inited = false;
       return;
@@ -55,21 +83,18 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
 
     public async update(data: { [key: string]: string }): Promise<void> {
       let input = this.getCleanValue(data) as unknown as { [key: string]: string };
-      // any XXXid updates shoudld be perform on creat
+      // XXXid updates shoudld be perform on creat
       for (const key in input) if (/id$/gm.test(key)) delete input[key];
-      await Item.where("id", this.data!.id.toString()).update();
+      await Item.where("id", this.id).update(input);
+      this.inited = false;
     }
 
     public async create(data: { [key: string]: string }): Promise<void> {
-      await Item.create(this.getCleanValue(data) as any);
-    }
-
-    public where(fieldName: string | { [key: string]: string }, clauseOperator?: string, fieldValue?: string) {
-      this.queryInfo = this.queryInfo.where(...arguments);
+      await Item.create(this.getCleanValue(data));
     }
 
     public orderBy(fieldName: string | { [key: string]: string }, asc?: string) {
-      this.queryInfo = this.queryInfo.orderBy(...arguments);
+      this.queryInfo = this.queryInfo.orderBy.apply(this.queryInfo, arguments as any);
       return;
     }
 
@@ -81,8 +106,16 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       this.queryInfo = this.queryInfo.offset(offset);
     }
 
-    public getSanitzedValue(data: itemData = this.data!) {
-      if (Array.isArray(data)) return data.map((item: itemData) => this.sanitize(item));
+    get id(): number {
+      return this.data?.id || -1;
+    }
+    get ids(): number[] {
+      if (Array.isArray(this.data)) return this.data!.map((x) => x.id);
+      return [];
+    }
+
+    public getSanitzedValue() {
+      if (this.isList) return this.datas!.map((item: itemData) => this.sanitize(item));
       return this.sanitize(this.data);
     }
 
@@ -90,10 +123,10 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       console.warn("ref is unsafe.(sanitizing problems)");
       if (schema[schema.length - 1] != "s") schema += "s";
       if (!this.inited) throw new Error("Cannot ref an uninitialized object");
-      return (await Item.where("id", this.data!.id)?.[schema]()) as unknown as Model[];
+      return (await Item.where("id", this.id)?.[schema]()) as unknown as Model[];
     }
 
-    private sanitize(data: itemData = this.data!): { [key: string]: string } {
+    private sanitize(data = this.data): { [key: string]: string } {
       let input = data as unknown as { [key: string]: string };
       let output: { [key: string]: string } = {};
       for (const key in input) if (publicData.includes(key)) output[key] = input[key];

@@ -26,7 +26,7 @@ router.get("/name/:name", async (ctx) => {
   const user = new User();
   user.where("name", ctx.params.name);
   await user.first();
-  if (user.inited) ctx.response.body = user.data;
+  if (user.inited) ctx.response.body = user.getSanitzedValue();
   else await errorResponse(ctx, "Not found", 404);
 });
 
@@ -43,7 +43,7 @@ router.get("/id/:id", async (ctx) => {
   const user = new User();
   user.where("id", ctx.params.id);
   await user.first();
-  if (user.inited) ctx.response.body = user.data;
+  if (user.inited) ctx.response.body = user.getSanitzedValue();
   else await errorResponse(ctx, "Not found", 404);
 });
 
@@ -60,7 +60,6 @@ router.post("/register", async (ctx) => {
   let user;
   if (body.privilege > 0) {
     user = await token.checkHeader(ctx);
-    // console.log(user);
     if (user == false) return;
     if (user.privilege! < body.privilege) {
       await errorResponse(ctx, "Insufficient privilege", 403);
@@ -102,7 +101,7 @@ router.delete("/", async (ctx) => {
     await user.first();
     if (!user.inited) await errorResponse(ctx, "Unauthorized", 401);
     else {
-      await token.deleteByUser(user.data!.id);
+      await token.deleteByUser(user.id);
       ctx.response.status = 202;
       ctx.response.body = "Success";
       // delete user

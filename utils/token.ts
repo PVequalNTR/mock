@@ -83,9 +83,9 @@ async function deleteToken(token: string) {
  * @returns {Promise<boolean>} true if success
  */
 async function deleteTokenByUser(id: string | number) {
-  let tokens = User.where("id", id).tokens();
+  let tokens = await User.where("id", id).tokens();
   if (tokens.length === 0) return false;
-  Promise.all(tokens.map(async (x) => x.delete()));
+  await Promise.all(tokens.map(async (x) => x.delete()));
   return true;
 }
 
