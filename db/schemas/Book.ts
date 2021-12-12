@@ -13,11 +13,13 @@ class Book extends Model {
     title: DataTypes.string(64),
     description: DataTypes.string(256),
     privilege: DataTypes.INTEGER,
+    lastModified: DataTypes.INTEGER,
   };
   static defaults = {
     title: "title",
     description: "description",
     privilege: 0,
+    lastModified: 0,
   };
   static posts(): Model[] {
     return this.hasMany(Post) as any;

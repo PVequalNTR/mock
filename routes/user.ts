@@ -27,7 +27,7 @@ router.get("/name/:name", async (ctx) => {
   user.where("name", ctx.params.name);
   await user.first();
   if (user.inited) ctx.response.body = user.data;
-  else errorResponse(ctx, "Not found", 404);
+  else await errorResponse(ctx, "Not found", 404);
 });
 
 /**
@@ -44,7 +44,7 @@ router.get("/id/:id", async (ctx) => {
   user.where("id", ctx.params.id);
   await user.first();
   if (user.inited) ctx.response.body = user.data;
-  else errorResponse(ctx, "Not found", 404);
+  else await errorResponse(ctx, "Not found", 404);
 });
 
 /**
@@ -68,13 +68,13 @@ router.post("/register", async (ctx) => {
     }
   }
   if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
-  else if (body.name.length > 64 || body.password.length > 128) errorResponse(ctx, "Required parameters too long", 400);
+  else if (body.name.length > 64 || body.password.length > 128) await errorResponse(ctx, "Required parameters too long", 400);
   // warning: input value may contain forbidden characters.
   // else if (
   //   !/^[a-zA-Z \.]+$/.test(body.name) ||
   //   !/^[a-zA-Z \.]+$/.test(body.password)
   // )
-  //   errorResponse(ctx, "Forbidden character", 400);
+  //   await errorResponse(ctx, "Forbidden character", 400);
   else {
     await new User().create({
       name: body.name,

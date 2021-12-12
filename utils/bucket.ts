@@ -2,7 +2,7 @@ import { config } from "../deps.ts";
 import { ensureDir, exists } from "../deps.ts";
 
 let basePath = "./" + config().STORAGE_PATH.replace(/\/$/, "");
-const bucketSize = 3 * 2; // 100**3
+const bucketSize = 4 * 2; // 100**3
 
 interface bucket {
   constructor(name: string): bucket;

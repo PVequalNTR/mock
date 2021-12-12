@@ -19,7 +19,7 @@ const db = new Database(connector);
 Relationships.belongsTo(Token, User);
 Relationships.belongsTo(Post, User);
 Relationships.belongsTo(Book, User);
-Relationships.belongsTo(Book, Post);
+Relationships.belongsTo(Post, Book);
 
 db.link([Token, User, Post, Book]);
 

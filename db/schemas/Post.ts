@@ -13,14 +13,12 @@ class Post extends Model {
     title: DataTypes.string(64),
     description: DataTypes.string(256),
     privilege: DataTypes.INTEGER,
-    path: DataTypes.INTEGER,
     lastModified: DataTypes.INTEGER,
   };
   static defaults = {
     title: "title",
     description: "description",
     privilege: 0,
-    path: 0,
     lastModified: 0,
   };
   static book() {

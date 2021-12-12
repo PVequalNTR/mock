@@ -2,6 +2,7 @@ import { Router } from "../deps.ts";
 import { config } from "../deps.ts";
 
 import User from "../db/schemas/User.ts";
+import Book from "../db/schemas/Book.ts";
 import hash from "../utils/hash.ts";
 import Token from "../db/schemas/Token.ts";
 import getTime from "../utils/time.ts";
@@ -28,6 +29,9 @@ async function production() {
       privilege: 2,
     });
   } else console.log("admin user already exists");
+  // make sure book(id:0) exists and is not deleted(if admin don't do that)
+  if (await Book.where("id", 1).first()) console.log("book(id:1) already exists");
+  else await Book.create({ title: "System reserved", description: "System reserved", privilege: 2, lastModified: 0, userId: 1 });
 }
 
 // for test

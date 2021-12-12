@@ -21,7 +21,7 @@ async function errorResponse(ctx: any, text: string, status: number): Promise<bo
 router.post("/new", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
   if (!body.name || !body.password) {
-    errorResponse(ctx, "Required parameters not provided", 404);
+    await errorResponse(ctx, "Required parameters not provided", 404);
     return;
   }
   const user = new User();
@@ -29,7 +29,7 @@ router.post("/new", async (ctx) => {
   user.where("hashedPassword", await hash(body.password));
   await user.first();
   if (!user.inited) {
-    errorResponse(ctx, "Invalid username or password", 401);
+    await errorResponse(ctx, "Invalid username or password", 401);
   } else {
     const ttl = 3600 * 1000;
     const token_ = await token.generate(+user.data!.id, ttl);
@@ -45,7 +45,7 @@ router.post("/new", async (ctx) => {
  */
 router.delete("/", async (ctx) => {
   let user = await token.checkHeader(ctx);
-  if (user == false) errorResponse(ctx, "Invalid token", 401);
+  if (user == false) await errorResponse(ctx, "Invalid token", 401);
   else token.delete(ctx.request.headers.get("authentication")!);
   ctx.response.status = 202;
   ctx.response.body = "Success";

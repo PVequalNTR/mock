@@ -54,7 +54,10 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
     }
 
     public async update(data: { [key: string]: string }): Promise<void> {
-      await Item.where("id", this.data!.id.toString()).update(this.getCleanValue(data) as unknown as { [key: string]: string });
+      let input = this.getCleanValue(data) as unknown as { [key: string]: string };
+      // any XXXid updates shoudld be perform on creat
+      for (const key in input) if (/id$/gm.test(key)) delete input[key];
+      await Item.where("id", this.data!.id.toString()).update();
     }
 
     public async create(data: { [key: string]: string }): Promise<void> {
@@ -74,12 +77,18 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       this.queryInfo = this.queryInfo.limit(limit);
     }
 
+    public offset(offset: number) {
+      this.queryInfo = this.queryInfo.offset(offset);
+    }
+
     public getSanitzedValue(data: itemData = this.data!) {
       if (Array.isArray(data)) return data.map((item: itemData) => this.sanitize(item));
       return this.sanitize(this.data);
     }
 
-    public async ref(schema: string): Promise<Model[]> {
+    public async ref(schema: string): Promise<Model[] | Model> {
+      console.warn("ref is unsafe.(sanitizing problems)");
+      if (schema[schema.length - 1] != "s") schema += "s";
       if (!this.inited) throw new Error("Cannot ref an uninitialized object");
       return (await Item.where("id", this.data!.id)?.[schema]()) as unknown as Model[];
     }
