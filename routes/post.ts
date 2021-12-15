@@ -29,7 +29,7 @@ router.get("/title/:title", async (ctx) => {
   let post = new Post();
   post.where("title", ctx.params.title);
   await post.first();
-  if (post.inited) {
+  if (post.found) {
     ctx.response.body = post.getSanitzedValue();
   } else await errorResponse(ctx, "Not found", 404);
 });
@@ -47,7 +47,7 @@ router.get("/id/:id", async (ctx) => {
   let post = new Post();
   post.where("id", ctx.params.id);
   await post.first();
-  if (post.inited) {
+  if (post.found) {
     ctx.response.body = post.getSanitzedValue();
   } else await errorResponse(ctx, "Not found", 404);
 });
@@ -103,7 +103,7 @@ router.post("/create", async (ctx) => {
     await book.first();
   }
 
-  if (!book.inited) await errorResponse(ctx, "Required parameters missing or not found", 404);
+  if (!book.found) await errorResponse(ctx, "Required parameters missing or not found", 404);
   else if (user.privilege! < body.privilege) await errorResponse(ctx, "Insufficient privilege", 403);
   else if (body.title.length > 64 || body.description.length > 256) await errorResponse(ctx, "Required parameters too long", 400);
   else {
@@ -122,7 +122,7 @@ router.post("/create", async (ctx) => {
  * @field {string} content - a large string
  * token in header is required
  */
-router.patch("/", async (ctx) => {
+router.put("/", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
   let user = await token.checkHeader(ctx);
   if (user == false) {
@@ -133,7 +133,7 @@ router.patch("/", async (ctx) => {
 
   post.where({ userId: user.id!.toString(), id: body.id });
   await post.first();
-  if (!post.inited) await errorResponse(ctx, "Not found", 404);
+  if (!post.found) await errorResponse(ctx, "Not found", 404);
   else if (body.title.length > 64 || body.description.length > 256) await errorResponse(ctx, "Required parameters too long", 400);
   else {
     let location = new bucket("Post", post.data!.id);
@@ -163,7 +163,7 @@ router.delete("/:id", async (ctx) => {
   let post = new Post();
   post.where({ userId: user.id!.toString(), id: ctx.params.id });
   await post.first();
-  if (!post.inited) await errorResponse(ctx, "Not found", 404);
+  if (!post.found) await errorResponse(ctx, "Not found", 404);
   else {
     ctx.response.status = 202;
     ctx.response.body = "Success";

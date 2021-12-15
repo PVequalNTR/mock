@@ -28,7 +28,7 @@ router.post("/new", async (ctx) => {
   user.where("name", "" + body.name);
   user.where("hashedPassword", await hash(body.password));
   await user.first();
-  if (!user.inited) {
+  if (!user.found) {
     await errorResponse(ctx, "Invalid username or password", 401);
   } else {
     const ttl = 3600 * 1000;

@@ -26,7 +26,7 @@ router.get("/name/:name", async (ctx) => {
   const user = new User();
   user.where("name", ctx.params.name);
   await user.first();
-  if (user.inited) ctx.response.body = user.getSanitzedValue();
+  if (user.found) ctx.response.body = user.getSanitzedValue();
   else await errorResponse(ctx, "Not found", 404);
 });
 
@@ -43,7 +43,7 @@ router.get("/id/:id", async (ctx) => {
   const user = new User();
   user.where("id", ctx.params.id);
   await user.first();
-  if (user.inited) ctx.response.body = user.getSanitzedValue();
+  if (user.found) ctx.response.body = user.getSanitzedValue();
   else await errorResponse(ctx, "Not found", 404);
 });
 
@@ -99,7 +99,7 @@ router.delete("/", async (ctx) => {
     user.where("name", body.name);
     user.where("hashedPassword", await hash(body.password));
     await user.first();
-    if (!user.inited) await errorResponse(ctx, "Unauthorized", 401);
+    if (!user.found) await errorResponse(ctx, "Unauthorized", 401);
     else {
       await token.deleteByUser(user.id);
       ctx.response.status = 202;

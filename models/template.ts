@@ -22,37 +22,19 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
     where(paramlist: { [key in string]: string }): void;
     where(fieldName: string, fieldValue: string | number): void;
     where(fieldName: string, clauseOperator: string, fieldValue: string | number): void;
+    orderBy(fieldName: string, asc: string): Promise<void>;
+    orderBy(fieldName: { [key: string]: string }): Promise<void>;
   }
   class schemaLayer implements sqlInstruction {
-    public inited = false;
     public data?: itemData;
     public datas?: itemData[];
     public isList = false;
     private queryInfo: typeof Model = Item;
 
     constructor(data?: itemData) {
-      if (data) {
-        this.data = data;
-        this.inited = true;
-      }
+      if (data) this.data = data;
     }
 
-    /**
-     * where clause in sql
-     *
-     * @param {{ [x: string]: string }} paramlist Start of interval
-     */ /**
-     * sugar version impl for where clause in sql
-     *
-     * @param {string} fieldName Array containing start and end dates.
-     * @param {string | number} fieldValue
-     */ /**
-     * where clause in sql with operator(>,<,=,etc)
-     *
-     * @param {string} fieldName Array containing start and end dates.
-     * @param {string} clauseOperator
-     * @param {string | number} fieldValue
-     */
     public where(paramlist: { [x: string]: string }): void;
     public where(fieldName: string, fieldValue: string | number): void;
     public where(fieldName: string, clauseOperator: string, fieldValue: string | number): void;
@@ -62,23 +44,17 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
 
     public async all(): Promise<void> {
       this.datas = (await this.queryInfo.all()) as unknown as itemData[];
-      if (this.datas) {
-        this.isList = true;
-        this.inited = true;
-      } else this.inited = false;
+      if (this.datas) this.isList = true;
       return;
     }
 
     public async first(): Promise<void> {
       this.data = (await this.queryInfo.first()) as unknown as itemData;
-      if (this.data) this.inited = true;
-      else this.inited = false;
       return;
     }
 
     public async delete(): Promise<void> {
       await this.queryInfo.delete();
-      this.inited = false;
     }
 
     public async update(data: { [key: string]: string }): Promise<void> {
@@ -86,14 +62,15 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       // XXXid updates shoudld be perform on creat
       for (const key in input) if (/id$/gm.test(key)) delete input[key];
       await Item.where("id", this.id).update(input);
-      this.inited = false;
     }
 
     public async create(data: { [key: string]: string }): Promise<void> {
       await Item.create(this.getCleanValue(data));
     }
 
-    public orderBy(fieldName: string | { [key: string]: string }, asc?: string) {
+    public async orderBy(fieldName: string, asc: string): Promise<void>;
+    public async orderBy(fieldName: { [key: string]: string }): Promise<void>;
+    public async orderBy(fieldName: any, asc?: any): Promise<void> {
       this.queryInfo = this.queryInfo.orderBy.apply(this.queryInfo, arguments as any);
       return;
     }
@@ -114,6 +91,10 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       return [];
     }
 
+    get found() {
+      return !!this.data || !!this.datas;
+    }
+
     public getSanitzedValue() {
       if (this.isList) return this.datas!.map((item: itemData) => this.sanitize(item));
       return this.sanitize(this.data);
@@ -122,7 +103,7 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
     public async ref(schema: string): Promise<Model[] | Model> {
       console.warn("ref is unsafe.(sanitizing problems)");
       if (schema[schema.length - 1] != "s") schema += "s";
-      if (!this.inited) throw new Error("Cannot ref an uninitialized object");
+      if (!this.found) throw new Error("Cannot ref an uninitialized object");
       return (await Item.where("id", this.id)?.[schema]()) as unknown as Model[];
     }
 

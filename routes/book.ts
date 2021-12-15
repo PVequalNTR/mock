@@ -29,7 +29,7 @@ router.get("/title/:title", async (ctx) => {
   let book = new Book();
   book.where("title", ctx.params.title);
   await book.first();
-  if (book.inited) {
+  if (book.found) {
     ctx.response.body = book.getSanitzedValue();
   } else await errorResponse(ctx, "Not found", 404);
 });
@@ -47,7 +47,7 @@ router.get("/id/:id", async (ctx) => {
   let book = new Book();
   book.where("id", ctx.params.id);
   await book.first();
-  if (book.inited) {
+  if (book.found) {
     ctx.response.body = book.getSanitzedValue();
   } else await errorResponse(ctx, "Not found", 404);
 });
@@ -67,7 +67,7 @@ router.get("/list/:id", async (ctx) => {
   book.where("id", ctx.params.id);
   await book.first();
   if (ctx.params.id == "0") await errorResponse(ctx, "System reserved", 409);
-  else if (book.inited) {
+  else if (book.found) {
     let posts = new Post();
     posts.where("bookId", ctx.params.id);
     posts.limit(300);
@@ -148,7 +148,7 @@ router.put("/", async (ctx) => {
 
   book.where({ userId: user.id!.toString(), id: body.id });
   await book.first();
-  if (!book.inited) await errorResponse(ctx, "Not found", 404);
+  if (!book.found) await errorResponse(ctx, "Not found", 404);
   else if (body.title.length > 64 || body.description.length > 256) await errorResponse(ctx, "Required parameters too long", 400);
   else {
     body.lastModified = getTime();
@@ -177,7 +177,7 @@ router.put("/link", async (ctx) => {
   let post = new Post();
   post.where({ userId: user.id!.toString(), id: body.bookId });
   await Promise.all([book.first(), post.first()]);
-  if (!book.inited || !post.inited) await errorResponse(ctx, "Not found", 404);
+  if (!book.found || !post.found) await errorResponse(ctx, "Not found", 404);
   else {
     ctx.response.status = 202;
     ctx.response.body = "Success";
@@ -200,7 +200,7 @@ router.delete("/:id", async (ctx) => {
   let book = new Book();
   book.where({ userId: user.id!.toString(), id: ctx.params.id });
   await book.first();
-  if (!book.inited) await errorResponse(ctx, "Not found", 404);
+  if (!book.found) await errorResponse(ctx, "Not found", 404);
   else {
     ctx.response.status = 202;
     ctx.response.body = "Success";
