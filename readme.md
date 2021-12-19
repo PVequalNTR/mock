@@ -28,6 +28,8 @@
   - script for server
 - utils
   - some other file...
+- test
+  - test file for k6
 
 ## variable naming
 

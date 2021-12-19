@@ -68,12 +68,6 @@ router.post("/register", async (ctx) => {
   }
   if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
   else if (body.name.length > 64 || body.password.length > 128) await errorResponse(ctx, "Required parameters too long", 400);
-  // warning: input value may contain forbidden characters.
-  // else if (
-  //   !/^[a-zA-Z \.]+$/.test(body.name) ||
-  //   !/^[a-zA-Z \.]+$/.test(body.password)
-  // )
-  //   await errorResponse(ctx, "Forbidden character", 400);
   else {
     await new User().create({
       name: body.name,
@@ -101,10 +95,10 @@ router.delete("/", async (ctx) => {
     await user.first();
     if (!user.found) await errorResponse(ctx, "Unauthorized", 401);
     else {
+      // once user has been deleted, add releative thing in sqlite will automatically get deleted
       await token.deleteByUser(user.id);
       ctx.response.status = 202;
       ctx.response.body = "Success";
-      // delete user
       await user.delete();
     }
   }

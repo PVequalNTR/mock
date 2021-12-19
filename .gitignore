@@ -1,3 +1,4 @@
 *.exe
 note.txt
 /db/tmp/*
+deno

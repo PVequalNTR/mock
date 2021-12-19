@@ -18,14 +18,14 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
   requiredData = requiredData.concat(addOnData);
   publicData = publicData.concat(addOnData);
 
-  interface sqlInstruction {
-    where(paramlist: { [key in string]: string }): void;
-    where(fieldName: string, fieldValue: string | number): void;
-    where(fieldName: string, clauseOperator: string, fieldValue: string | number): void;
-    orderBy(fieldName: string, asc: string): Promise<void>;
-    orderBy(fieldName: { [key: string]: string }): Promise<void>;
-  }
-  class schemaLayer implements sqlInstruction {
+  // interface sqlInstruction {
+  //   where(paramlist: { [key in string]: string }): void;
+  //   where(fieldName: string, fieldValue: string | number): void;
+  //   where(fieldName: string, clauseOperator: string, fieldValue: string | number): void;
+  //   orderBy(fieldName: string, asc: string): Promise<void>;
+  //   orderBy(fieldName: { [key: string]: string }): Promise<void>;
+  // }
+  class schemaLayer {
     public data?: itemData;
     public datas?: itemData[];
     public isList = false;
@@ -114,9 +114,11 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       return output;
     }
 
-    private getCleanValue(data: { [key: string]: string }): itemData {
+    private getCleanValue(data: { [key: string]: string | number | any }): itemData {
       let output = data;
       for (const key in output) if (!requiredData.includes(key)) delete output[key];
+      // To prevent any possible injection
+      for (const key in output) if (!(output[key] instanceof String)) output[key] = "" + output[key];
       if (output.id) delete output.id;
       return output as unknown as itemData;
     }

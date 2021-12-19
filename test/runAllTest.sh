@@ -1,0 +1,1 @@
+k6 run --out json=out.json.txt all.js

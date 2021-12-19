@@ -12,6 +12,7 @@ function format(x: String | number, d: number, align: "left" | "mid" | "right" =
   let spacing = " ";
   if (typeof x === "number") spacing = "0";
   const reSpacing = d - x.toString().length;
+  if (reSpacing < 0) return x.toString().slice(0, d);
   if (align == "left") return x + spacing.repeat(reSpacing);
   else if (align == "right") return spacing.repeat(reSpacing) + x;
   else return spacing.repeat(reSpacing / 2) + x + spacing.repeat(Math.ceil(reSpacing / 2));
