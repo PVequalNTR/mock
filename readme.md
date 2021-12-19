@@ -43,3 +43,13 @@
 1. download nginx and use the ``nginx.conf`` in the root folder
 2. launch nginx and deno@v1.13.2
 3. ready to go(although I am too lazy to update the api file, which is too stale now)
+
+## more
+
+if you want a muti threaded application, you can 
+1. replace your db connector code(denodb) into ``./db/db.ts``
+2. use a lot of docker instances as resource pool.
+3. edit nginx.conf for resource pool
+4. Done!
+
+Disclaimer: I didn't test it because docker get bad compatibility on ``arm64``
