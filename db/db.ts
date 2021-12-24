@@ -1,4 +1,4 @@
-import { Database, SQLite3Connector, Relationships } from "../deps.ts";
+import { Database, SQLite3Connector, Relationships, PostgresConnector } from "../deps.ts";
 import { config } from "../deps.ts";
 import { ensureDir } from "../deps.ts";
 
@@ -8,11 +8,26 @@ import Post from "../db/schemas/Post.ts";
 import Book from "../db/schemas/Book.ts";
 
 await ensureDir("./" + config().STORAGE_PATH);
-const sqlitePath = config().STORAGE_PATH.replace(/\/$/, "") + "/db.sqlite";
 
-const connector = new SQLite3Connector({
-  filepath: sqlitePath,
-});
+let connector;
+
+const sqlitePath = config().STORAGE_PATH.replace(/\/$/, "") + "/db.sqlite";
+switch (config().SQL_TYPE) {
+  case "postgresql":
+    connector = new PostgresConnector({
+      database: config().SQL_DATABASE,
+      host: config().SQL_HOST,
+      username: config().SQL_USERNAME,
+      password: config().SQL_PASSWORD,
+      port: +config().SQL_PORT || 5432,
+    });
+  default:
+  case "sqlite":
+    connector = new SQLite3Connector({
+      filepath: sqlitePath,
+    });
+    break;
+}
 
 const db = new Database(connector);
 

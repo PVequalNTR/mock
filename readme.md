@@ -46,10 +46,26 @@
 
 ## more
 
-if you want a muti threaded application, you can 
-1. replace your db connector code(denodb) into ``./db/db.ts``
-2. use a lot of docker instances as resource pool.
-3. edit nginx.conf for resource pool
-4. Done!
+if you want a muti machine application, you can 
+1. edit``.env``file
+```
+ENVIRONMENT=development
+PORT=3000
+# make sure it's in network disk for muti machine
+STORAGE_PATH=db/tmp/
+# postgresql if muti machine
+SQL_TYPE=sqlite
+# make sure not NULL for postgresql
+SQL_DATABASE=NULL
+SQL_HOST=NULL
+SQL_USERNAME=NULL
+SQL_PASSWORD=NULL
+SQL_PORT=NULL
+# change password
+DEFAULT_NAME=admin
+DEFAULT_PASSWORD=password
+TOKEN_TTL=7200000
+HASH_TABLE=Xyju4NsGxfrJC6knwgP1i0W7vTB2R3KHocOpadZYmQqFIVltUEDLSzMh8e5Ab
+```
 
 Disclaimer: I didn't test it because docker get bad compatibility on ``arm64``

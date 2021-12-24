@@ -1,5 +1,14 @@
 import { Model } from "../deps.ts";
 
+type unsafeData = any;
+
+/**
+ * turn a model into a schema layer which can ensure the model's data is safe
+ * when it is either being sent to the client or being store to the database
+ * @param {Model} Item
+ * @param limitFields
+ * @returns
+ */
 function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: string[]; addOnData?: string[] }) {
   class itemData {
     id: number = 1;
@@ -18,13 +27,6 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
   requiredData = requiredData.concat(addOnData);
   publicData = publicData.concat(addOnData);
 
-  // interface sqlInstruction {
-  //   where(paramlist: { [key in string]: string }): void;
-  //   where(fieldName: string, fieldValue: string | number): void;
-  //   where(fieldName: string, clauseOperator: string, fieldValue: string | number): void;
-  //   orderBy(fieldName: string, asc: string): Promise<void>;
-  //   orderBy(fieldName: { [key: string]: string }): Promise<void>;
-  // }
   class schemaLayer {
     public data?: itemData;
     public datas?: itemData[];
@@ -95,11 +97,13 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       return !!this.data || !!this.datas;
     }
 
+    // get sanitzed value form data which is safe to be sent to client
     public getSanitzedValue() {
       if (this.isList) return this.datas!.map((item: itemData) => this.sanitize(item));
       return this.sanitize(this.data);
     }
 
+    // get ref value by pivot table or pirmary key
     public async ref(schema: string): Promise<Model[] | Model> {
       console.warn("ref is unsafe.(sanitizing problems)");
       if (schema[schema.length - 1] != "s") schema += "s";
@@ -107,6 +111,7 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       return (await Item.where("id", this.id)?.[schema]()) as unknown as Model[];
     }
 
+    // get sanitzed value from args which is safe to be sent to client
     private sanitize(data = this.data): { [key: string]: string } {
       let input = data as unknown as { [key: string]: string };
       let output: { [key: string]: string } = {};
@@ -114,7 +119,8 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
       return output;
     }
 
-    private getCleanValue(data: { [key: string]: string | number | any }): itemData {
+    // get cleaned value which is safe to be stored to database
+    private getCleanValue(data: { [key: string]: string | number | unsafeData }): itemData {
       let output = data;
       for (const key in output) if (!requiredData.includes(key)) delete output[key];
       // To prevent any possible injection
