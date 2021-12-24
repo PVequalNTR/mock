@@ -46,7 +46,9 @@
 
 ## more
 
-if you want a muti machine application, you can 
+if you like docker, here is an Dockerfile.
+
+if you want a muti machine application, you can :
 1. edit``.env``file
 ```
 ENVIRONMENT=development

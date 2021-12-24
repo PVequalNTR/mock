@@ -27,6 +27,7 @@ function getSchemaLayer(this: any, Item: any, limitFields?: { secretData?: strin
   requiredData = requiredData.concat(addOnData);
   publicData = publicData.concat(addOnData);
 
+  // part of getSchemaLayer(see above)
   class schemaLayer {
     public data?: itemData;
     public datas?: itemData[];
