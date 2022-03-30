@@ -33,3 +33,5 @@ if (db.getConnector()._connected) {
   app.listen({ port });
   console.log(`app listening at ${green("http://localhost:" + port)}`);
 }
+
+export { app };
