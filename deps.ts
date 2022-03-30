@@ -1,3 +1,4 @@
+// deps when run
 export {
   Application,
   Context,
@@ -26,5 +27,4 @@ export {
 } from "https://deno.land/std@0.132.0/fmt/colors.ts";
 export { LRU } from "https://deno.land/x/lru@1.0.2/mod.ts";
 export { ensureDir, exists } from "https://deno.land/std@0.132.0/fs/mod.ts";
-export { superoak } from "https://deno.land/x/superoak@4.7.0/mod.ts";
 // export * as logModule from "https://deno.land/std@0.115.1/log/mod.ts";
