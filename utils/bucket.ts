@@ -26,7 +26,8 @@ class bucket {
   }
   public async getArrayBuffer(id: number = this.id): Promise<Uint8Array> {
     throw new Error("Method not implemented.");
-    const countWords = (s: string): number => s.split(/\s+/g).filter((w) => /[a-z0-9]/.test(w)).length;
+    const countWords = (s: string): number =>
+      s.split(/\s+/g).filter((w) => /[a-z0-9]/.test(w)).length;
 
     const decoder = new TextDecoder("utf-8");
 

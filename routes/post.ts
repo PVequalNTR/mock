@@ -10,7 +10,11 @@ import bucket from "../utils/bucket.ts";
 const router = new Router();
 
 // shorten code
-async function errorResponse(ctx: any, text: string, status: number): Promise<boolean> {
+async function errorResponse(
+  ctx: any,
+  text: string,
+  status: number,
+): Promise<boolean> {
   ctx.response.status = status;
   ctx.response.body = text;
   return true;
@@ -103,10 +107,13 @@ router.post("/create", async (ctx) => {
     await book.first();
   }
 
-  if (!book.found) await errorResponse(ctx, "Required parameters missing or not found", 404);
-  else if (user.privilege! < body.privilege) await errorResponse(ctx, "Insufficient privilege", 403);
-  else if (body.title.length > 64 || body.description.length > 256) await errorResponse(ctx, "Required parameters too long", 400);
-  else {
+  if (!book.found) {
+    await errorResponse(ctx, "Required parameters missing or not found", 404);
+  } else if (user.privilege! < body.privilege) {
+    await errorResponse(ctx, "Insufficient privilege", 403);
+  } else if (body.title.length > 64 || body.description.length > 256) {
+    await errorResponse(ctx, "Required parameters too long", 400);
+  } else {
     await new Post().create(body);
     ctx.response.status = 201;
     ctx.response.body = "Success";
@@ -134,8 +141,9 @@ router.put("/", async (ctx) => {
   post.where({ userId: user.id!.toString(), id: body.id });
   await post.first();
   if (!post.found) await errorResponse(ctx, "Not found", 404);
-  else if (body.title.length > 64 || body.description.length > 256) await errorResponse(ctx, "Required parameters too long", 400);
-  else {
+  else if (body.title.length > 64 || body.description.length > 256) {
+    await errorResponse(ctx, "Required parameters too long", 400);
+  } else {
     let location = new bucket("Post", post.data!.id);
     if (body.content) {
       body.path = post.data!.id;

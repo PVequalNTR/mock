@@ -6,7 +6,9 @@ const baseUrl = "http://192.168.1.199:3000/api";
 
 function randomString(iter = 1) {
   let base = "";
-  while (iter--) base += Math.random().toString(36) + Math.random().toString(36);
+  while (iter--) {
+    base += Math.random().toString(36) + Math.random().toString(36);
+  }
   return base;
 }
 
@@ -17,11 +19,17 @@ export default function () {
     privilege: 0,
   };
 
-  let registerRes = http.post(baseUrl + "/user/register", JSON.stringify(registerData), {
-    headers: { "Content-Type": "application/json" },
-  });
+  let registerRes = http.post(
+    baseUrl + "/user/register",
+    JSON.stringify(registerData),
+    {
+      headers: { "Content-Type": "application/json" },
+    },
+  );
 
-  check(registerRes, { "/user/register - status": (r) => 300 > r.status && r.status >= 200 });
+  check(registerRes, {
+    "/user/register - status": (r) => 300 > r.status && r.status >= 200,
+  });
 
   let loginData = { name: registerData.name, password: registerData.password };
 
@@ -29,7 +37,9 @@ export default function () {
     headers: { "Content-Type": "application/json" },
   });
 
-  check(loginRes, { "/token/new - status": (r) => 300 > r.status && r.status >= 200 });
+  check(loginRes, {
+    "/token/new - status": (r) => 300 > r.status && r.status >= 200,
+  });
 
   const params = {
     headers: {
@@ -44,15 +54,26 @@ export default function () {
     bookId: "1",
   };
 
-  let articleCreateRes = http.post(baseUrl + "/post/create", JSON.stringify(articleCreateData), params);
+  let articleCreateRes = http.post(
+    baseUrl + "/post/create",
+    JSON.stringify(articleCreateData),
+    params,
+  );
 
-  check(articleCreateRes, { "/post/create - status": (r) => 300 > r.status && r.status >= 200 });
+  check(articleCreateRes, {
+    "/post/create - status": (r) => 300 > r.status && r.status >= 200,
+  });
 
   sleep(5);
 
-  let articleTitleRes = http.get(baseUrl + "/post/title/" + articleCreateData.title, params);
+  let articleTitleRes = http.get(
+    baseUrl + "/post/title/" + articleCreateData.title,
+    params,
+  );
 
-  check(articleTitleRes, { "/post/title/:title - status": (r) => 300 > r.status && r.status >= 200 });
+  check(articleTitleRes, {
+    "/post/title/:title - status": (r) => 300 > r.status && r.status >= 200,
+  });
 
   sleep(5);
 

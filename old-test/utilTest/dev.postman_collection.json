@@ -1,798 +1,798 @@
 {
-	"info": {
-		"_postman_id": "96b6668e-910a-4cbe-a8be-f103ddcf9ebb",
-		"name": "dev",
-		"description": "# simple API documention\n\n**Auths were included in the request headers**\n\nIncluding:\n\n## User\n\n*   Add User\n*   User Login\n*   Grant privilege to User\n*   Get detail of a User\n*   create a user\n*   delete user\n    \n\n## Room\n\n*   Join room\n*   Create room\n*   Delete room\n*   Get room info\n*   Leave room\n    \n\n## http polling\n\n**for backward support**\n\n*   Get polling uri(redirect)\n*   Polling for room msg\n    \n\n## websocket\n\n*   Establish upgrade request\n*   Listening for room msg\n*   Listening for room info change\n*   Send msg by websocket\n    \n\n## chat\n\n**for backward support**\n\n*   Send msg by http",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "user",
-			"item": [
-				{
-					"name": "get by id",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/user/id/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"user",
-								"id",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get by name",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/user/name/:name",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"user",
-								"name",
-								":name"
-							],
-							"variable": [
-								{
-									"key": "name",
-									"value": "{{user_name}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "creat",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Hugo=-高一十\",\r\n    \"password\": \"Hugo=='高一十\",\r\n    \"privilege\": 0\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/user/register",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"user",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "delete user",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Hugo=-高一十\",\r\n    \"password\": \"Hugo=='高一十\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/user",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"user"
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"auth": {
-				"type": "noauth"
-			},
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				}
-			]
-		},
-		{
-			"name": "token",
-			"item": [
-				{
-					"name": "new",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"admin\",\r\n    \"password\": \"password\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/token/new",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"token",
-								"new"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "delete",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/token/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"token",
-								""
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "post",
-			"item": [
-				{
-					"name": "create",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "authentication",
-								"value": "aJzKMdWJ1rr4ueD2aW7zQmurjnrYPpg5fDbbSlQVUlqpek5SXNZdJ1F4v7O4x0Hc",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"test\",\r\n    \"description\": \"nope\",\r\n    \"bookId\":\"1\",\r\n    \"privilege\": 0\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/post/create",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"post",
-								"create"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get by title",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							},
-							{
-								"key": "authentication",
-								"value": "uZoFxUoQD3vIVgbx3com23JamSvTBDJjcKMsRgm5XcLs8oCXQQtagLMoNHOZNZXC",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/post/title/:title",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"post",
-								"title",
-								":title"
-							],
-							"variable": [
-								{
-									"key": "title",
-									"value": "test"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get by id",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/post/id/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"post",
-								"id",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "latest",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							},
-							{
-								"key": "authentication",
-								"value": "uZoFxUoQD3vIVgbx3com23JamSvTBDJjcKMsRgm5XcLs8oCXQQtagLMoNHOZNZXC",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/post/latest/:offset",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"post",
-								"latest",
-								":offset"
-							],
-							"variable": [
-								{
-									"key": "offset",
-									"value": "0"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "update",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "authentication",
-								"value": "aJzKMdWJ1rr4ueD2aW7zQmurjnrYPpg5fDbbSlQVUlqpek5SXNZdJ1F4v7O4x0Hc",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"id\": \"2\",\r\n    \"title\": \"test\",\r\n    \"description\": \"description\",\r\n    \"content\": \"abcd\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/post/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"post",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "read",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/post/read/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"post",
-								"read",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "delete",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/post/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"post",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "book",
-			"item": [
-				{
-					"name": "create",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"test\",\r\n    \"description\": \"nope\",\r\n    \"privilege\": 2\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/book/create",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"book",
-								"create"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get by title",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/book/title/:title",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"book",
-								"title",
-								":title"
-							],
-							"variable": [
-								{
-									"key": "title",
-									"value": "test"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get by id",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/book/id/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"book",
-								"id",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "list by id",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/book/list/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"book",
-								"list",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "0"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "latest",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/book/latest/:offset",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"book",
-								"latest",
-								":offset"
-							],
-							"variable": [
-								{
-									"key": "offset",
-									"value": "0"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "update",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"id\": \"1\",\r\n    \"title\": \"test\",\r\n    \"description\": \"description\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/book/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"book",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "link",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"bookId\": \"1\",\r\n    \"postId\": \"1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/book/link/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"book",
-								"link",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "delete",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "authentication",
-								"value": "{{user_token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/book/:id",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"book",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "user_token",
-			"value": "MbwqeaEzG4N3XqdSTC40NgGtAR64asufTPhennmeOAtKPvrdydul3k7jWKi6K1Ku"
-		},
-		{
-			"key": "base_url",
-			"value": "http://localhost:80/api"
-		},
-		{
-			"key": "user_name",
-			"value": "admin"
-		},
-		{
-			"key": "user_password",
-			"value": "password"
-		}
-	]
+  "info": {
+    "_postman_id": "96b6668e-910a-4cbe-a8be-f103ddcf9ebb",
+    "name": "dev",
+    "description": "# simple API documention\n\n**Auths were included in the request headers**\n\nIncluding:\n\n## User\n\n*   Add User\n*   User Login\n*   Grant privilege to User\n*   Get detail of a User\n*   create a user\n*   delete user\n    \n\n## Room\n\n*   Join room\n*   Create room\n*   Delete room\n*   Get room info\n*   Leave room\n    \n\n## http polling\n\n**for backward support**\n\n*   Get polling uri(redirect)\n*   Polling for room msg\n    \n\n## websocket\n\n*   Establish upgrade request\n*   Listening for room msg\n*   Listening for room info change\n*   Send msg by websocket\n    \n\n## chat\n\n**for backward support**\n\n*   Send msg by http",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "get by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/id/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "id",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/name/:name",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "name",
+                ":name"
+              ],
+              "variable": [
+                {
+                  "key": "name",
+                  "value": "{{user_name}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "creat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Hugo=-高一十\",\r\n    \"password\": \"Hugo=='高一十\",\r\n    \"privilege\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/user/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Hugo=-高一十\",\r\n    \"password\": \"Hugo=='高一十\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/user",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "token",
+      "item": [
+        {
+          "name": "new",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"admin\",\r\n    \"password\": \"password\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/token/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "token",
+                "new"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/token/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "token",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "post",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "authentication",
+                "value": "aJzKMdWJ1rr4ueD2aW7zQmurjnrYPpg5fDbbSlQVUlqpek5SXNZdJ1F4v7O4x0Hc",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"test\",\r\n    \"description\": \"nope\",\r\n    \"bookId\":\"1\",\r\n    \"privilege\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/post/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "post",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by title",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              },
+              {
+                "key": "authentication",
+                "value": "uZoFxUoQD3vIVgbx3com23JamSvTBDJjcKMsRgm5XcLs8oCXQQtagLMoNHOZNZXC",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/post/title/:title",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "post",
+                "title",
+                ":title"
+              ],
+              "variable": [
+                {
+                  "key": "title",
+                  "value": "test"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/post/id/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "post",
+                "id",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "latest",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              },
+              {
+                "key": "authentication",
+                "value": "uZoFxUoQD3vIVgbx3com23JamSvTBDJjcKMsRgm5XcLs8oCXQQtagLMoNHOZNZXC",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/post/latest/:offset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "post",
+                "latest",
+                ":offset"
+              ],
+              "variable": [
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              },
+              {
+                "key": "authentication",
+                "value": "aJzKMdWJ1rr4ueD2aW7zQmurjnrYPpg5fDbbSlQVUlqpek5SXNZdJ1F4v7O4x0Hc",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"2\",\r\n    \"title\": \"test\",\r\n    \"description\": \"description\",\r\n    \"content\": \"abcd\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/post/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "post",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "read",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/post/read/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "post",
+                "read",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/post/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "post",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "book",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"test\",\r\n    \"description\": \"nope\",\r\n    \"privilege\": 2\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/book/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "book",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by title",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/book/title/:title",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "book",
+                "title",
+                ":title"
+              ],
+              "variable": [
+                {
+                  "key": "title",
+                  "value": "test"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/book/id/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "book",
+                "id",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/book/list/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "book",
+                "list",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "latest",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/book/latest/:offset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "book",
+                "latest",
+                ":offset"
+              ],
+              "variable": [
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"1\",\r\n    \"title\": \"test\",\r\n    \"description\": \"description\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/book/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "book",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "link",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"bookId\": \"1\",\r\n    \"postId\": \"1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/book/link/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "book",
+                "link",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "authentication",
+                "value": "{{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/book/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "book",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "user_token",
+      "value": "MbwqeaEzG4N3XqdSTC40NgGtAR64asufTPhennmeOAtKPvrdydul3k7jWKi6K1Ku"
+    },
+    {
+      "key": "base_url",
+      "value": "http://localhost:80/api"
+    },
+    {
+      "key": "user_name",
+      "value": "admin"
+    },
+    {
+      "key": "user_password",
+      "value": "password"
+    }
+  ]
 }

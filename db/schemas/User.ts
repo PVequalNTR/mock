@@ -1,4 +1,4 @@
-import { Model, DataTypes } from "../../deps.ts";
+import { DataTypes, Model } from "../../deps.ts";
 import Token from "../schemas/Token.ts";
 import Post from "../schemas/Post.ts";
 import Book from "../schemas/Book.ts";

@@ -7,7 +7,11 @@ import token from "../utils/token.ts";
 const router = new Router();
 
 // shorten code
-async function errorResponse(ctx: any, text: string, status: number): Promise<boolean> {
+async function errorResponse(
+  ctx: any,
+  text: string,
+  status: number,
+): Promise<boolean> {
   ctx.response.status = status;
   ctx.response.body = text;
   return true;

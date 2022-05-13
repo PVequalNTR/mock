@@ -7,7 +7,11 @@ import token from "../utils/token.ts";
 const router = new Router();
 
 // shorten code
-async function errorResponse(ctx: any, text: string, status: number): Promise<boolean> {
+async function errorResponse(
+  ctx: any,
+  text: string,
+  status: number,
+): Promise<boolean> {
   ctx.response.status = status;
   ctx.response.body = text;
   return true;
@@ -66,9 +70,11 @@ router.post("/register", async (ctx) => {
       return;
     }
   }
-  if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
-  else if (body.name.length > 64 || body.password.length > 128) await errorResponse(ctx, "Required parameters too long", 400);
-  else {
+  if (!body.name || !body.password) {
+    await errorResponse(ctx, "Required parameters not provided", 400);
+  } else if (body.name.length > 64 || body.password.length > 128) {
+    await errorResponse(ctx, "Required parameters too long", 400);
+  } else {
     await new User().create({
       name: body.name,
       hashedPassword: await hash(body.password),
@@ -86,8 +92,9 @@ router.post("/register", async (ctx) => {
  */
 router.delete("/", async (ctx) => {
   const body = await ctx.request.body({ type: "json" }).value;
-  if (!body.name || !body.password) await errorResponse(ctx, "Required parameters not provided", 400);
-  else {
+  if (!body.name || !body.password) {
+    await errorResponse(ctx, "Required parameters not provided", 400);
+  } else {
     // perform a login active
     const user = new User();
     user.where("name", body.name);

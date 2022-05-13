@@ -30,14 +30,24 @@ async function production() {
     });
   } else console.log("admin user already exists");
   // make sure book(id:0) exists and is not deleted(if admin don't do that)
-  if (await Book.where("id", 1).first()) console.log("book(id:1) already exists");
-  else await Book.create({ title: "System reserved", description: "System reserved", privilege: 2, lastModified: 0, userId: 1 });
+  if (await Book.where("id", 1).first()) {
+    console.log("book(id:1) already exists");
+  } else {
+    await Book.create({
+      title: "System reserved",
+      description: "System reserved",
+      privilege: 2,
+      lastModified: 0,
+      userId: 1,
+    });
+  }
 }
 
 // for test
 // 1. add default token
 async function testSuite() {
-  const adminToken = "MbwqeaEzG4N3XqdSTC40NgGtAR64asufTPhennmeOAtKPvrdydul3k7jWKi6K1Ku";
+  const adminToken =
+    "MbwqeaEzG4N3XqdSTC40NgGtAR64asufTPhennmeOAtKPvrdydul3k7jWKi6K1Ku";
   let admin = await User.where("name", defaultUser.name).first();
   const token_ttl = 365 * 24 * 60 * 60 * 1000;
   await Token.create({

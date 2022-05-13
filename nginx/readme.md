@@ -1,3 +1,3 @@
 # nginx
 
-Only ``nginx.conf`` file.
+Only `nginx.conf` file.

@@ -10,7 +10,11 @@ import bucket from "../utils/bucket.ts";
 const router = new Router();
 
 // shorten code
-async function errorResponse(ctx: any, text: string, status: number): Promise<boolean> {
+async function errorResponse(
+  ctx: any,
+  text: string,
+  status: number,
+): Promise<boolean> {
   ctx.response.status = status;
   ctx.response.body = text;
   return true;
@@ -119,9 +123,11 @@ router.post("/create", async (ctx) => {
 
   body.userId = user.id;
 
-  if (user.privilege! < body.privilege) await errorResponse(ctx, "Insufficient privilege", 403);
-  else if (body.title.length > 64 || body.description.length > 256) await errorResponse(ctx, "Required parameters too long", 400);
-  else {
+  if (user.privilege! < body.privilege) {
+    await errorResponse(ctx, "Insufficient privilege", 403);
+  } else if (body.title.length > 64 || body.description.length > 256) {
+    await errorResponse(ctx, "Required parameters too long", 400);
+  } else {
     await new Book().create(body);
     ctx.response.status = 201;
     ctx.response.body = "Success";
@@ -149,8 +155,9 @@ router.put("/", async (ctx) => {
   book.where({ userId: user.id!.toString(), id: body.id });
   await book.first();
   if (!book.found) await errorResponse(ctx, "Not found", 404);
-  else if (body.title.length > 64 || body.description.length > 256) await errorResponse(ctx, "Required parameters too long", 400);
-  else {
+  else if (body.title.length > 64 || body.description.length > 256) {
+    await errorResponse(ctx, "Required parameters too long", 400);
+  } else {
     body.lastModified = getTime();
     await book.update(body);
     ctx.response.status = 202;

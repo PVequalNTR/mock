@@ -1,4 +1,9 @@
-import { Database, SQLite3Connector, Relationships, PostgresConnector } from "../deps.ts";
+import {
+  Database,
+  PostgresConnector,
+  Relationships,
+  SQLite3Connector,
+} from "../deps.ts";
 import { config } from "../deps.ts";
 import { ensureDir } from "../deps.ts";
 
@@ -42,6 +47,8 @@ if (config().ENVIRONMENT == "development") await db.sync({ drop: true });
 else await db.sync();
 
 // delete token
-await Promise.all((await Token.where("id", ">", "-1").all()).map((x) => x.delete()));
+await Promise.all(
+  (await Token.where("id", ">", "-1").all()).map((x) => x.delete()),
+);
 
 export default db;

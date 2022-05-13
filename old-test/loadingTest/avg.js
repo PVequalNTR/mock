@@ -24,12 +24,23 @@ async function main(field) {
   let tmp = [];
   let prevValue = 0;
   let nowTime = startTime;
-  let outFile = await Deno.open("./fout/" + field + ".csv", { write: true, create: true, append: true });
+  let outFile = await Deno.open("./fout/" + field + ".csv", {
+    write: true,
+    create: true,
+    append: true,
+  });
   const filename = path.join(Deno.cwd(), "./out/" + field + ".csv");
 
-  await Deno.writeAll(outFile, new TextEncoder().encode("time," + field + "\n"));
+  await Deno.writeAll(
+    outFile,
+    new TextEncoder().encode("time," + field + "\n"),
+  );
   outFile.close();
-  outFile = await Deno.open("./fout/" + field + ".csv", { write: true, create: true, append: true });
+  outFile = await Deno.open("./fout/" + field + ".csv", {
+    write: true,
+    create: true,
+    append: true,
+  });
 
   let fileReader = await Deno.open(filename);
 
@@ -40,11 +51,16 @@ async function main(field) {
     // console.log(value);
     tmp.push(value);
     if (timeStamp > nowTime + checkTime) {
-      let cv = (tmp.reduce((a, b) => a + b, 0) + prevValue) / (tmp.length + prevAmo);
+      let cv = (tmp.reduce((a, b) => a + b, 0) + prevValue) /
+        (tmp.length + prevAmo);
       let print = nowTime - startTime + "," + cv + "\n";
       await Deno.writeAll(outFile, new TextEncoder().encode(print));
       outFile.close();
-      outFile = await Deno.open("./fout/" + field + ".csv", { write: true, create: true, append: true });
+      outFile = await Deno.open("./fout/" + field + ".csv", {
+        write: true,
+        create: true,
+        append: true,
+      });
 
       tmp = [];
       nowTime += checkTime;

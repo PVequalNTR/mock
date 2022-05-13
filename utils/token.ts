@@ -15,11 +15,12 @@ const token_recycle_time = 10 * 1000;
 
 var tokenStorage;
 
-if (!tokenStorage)
+if (!tokenStorage) {
   tokenStorage = {
     tokenCache: new LRU(50),
     timer: setInterval(recycleToken, token_recycle_time),
   };
+}
 
 /**
  * recycle token (private)
