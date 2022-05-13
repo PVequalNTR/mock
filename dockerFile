@@ -1,7 +1,7 @@
 FROM lukechannings/deno:v1.21.1
 
 # The port that your application listens to.
-EXPOSE 3000
+EXPOSE 80
 
 WORKDIR /app
 
